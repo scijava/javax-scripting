@@ -11,6 +11,7 @@
     <ant dir="judo/make" target="clean"/>
     <ant dir="jython/make" target="clean"/>
     <ant dir="ognl/make" target="clean"/>
+    <ant dir="pnuts/make" target="clean"/>
     <ant dir="scheme/make" target="clean"/>
     <ant dir="sleep/make" target="clean"/>
     <ant dir="xpath/make" target="clean"/>
@@ -26,6 +27,7 @@
     <ant dir="judo/make"/>
     <ant dir="jython/make"/>
     <ant dir="ognl/make"/>
+    <ant dir="pnuts/make"/>
     <ant dir="scheme/make"/>
     <ant dir="sleep/make"/>
     <ant dir="xpath/make"/>
