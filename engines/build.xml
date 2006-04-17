@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="Build All Engines" default="all" basedir=".">
+
+  <target name="clean">
+    <ant dir="groovy/make" target="clean"/>
+    <ant dir="jacl/make" target="clean"/>
+    <ant dir="jelly/make" target="clean"/>
+    <ant dir="jexl/make" target="clean"/>
+    <ant dir="jruby/make" target="clean"/>
+    <ant dir="judo/make" target="clean"/>
+    <ant dir="jython/make" target="clean"/>
+    <ant dir="ognl/make" target="clean"/>
+    <ant dir="scheme/make" target="clean"/>
+    <ant dir="sleep/make" target="clean"/>
+    <ant dir="xpath/make" target="clean"/>
+    <ant dir="xslt/make" target="clean"/>
+  </target>
+
+  <target name="all" description="Builds sources and deployment jars">
+    <ant dir="groovy/make"/>
+    <ant dir="jacl/make"/>
+    <ant dir="jelly/make"/>
+    <ant dir="jexl/make"/>
+    <ant dir="jruby/make"/>
+    <ant dir="judo/make"/>
+    <ant dir="jython/make"/>
+    <ant dir="ognl/make"/>
+    <ant dir="scheme/make"/>
+    <ant dir="sleep/make"/>
+    <ant dir="xpath/make"/>
+    <ant dir="xslt/make"/>
+  </target>
+
+</project>

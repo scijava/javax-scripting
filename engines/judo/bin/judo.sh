@@ -1,0 +1,1 @@
+jrunscript -cp ../build/judo-engine.jar:../lib/judo.jar -l judo $*

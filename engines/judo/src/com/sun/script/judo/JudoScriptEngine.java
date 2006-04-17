@@ -1,0 +1,301 @@
+/*
+ * Copyright 2006 Sun Microsystems, Inc. All rights reserved. 
+ * Use is subject to license terms.
+ *
+ * Redistribution and use in source and binary forms, with or without modification, are 
+ * permitted provided that the following conditions are met: Redistributions of source code 
+ * must retain the above copyright notice, this list of conditions and the following disclaimer.
+ * Redistributions in binary form must reproduce the above copyright notice, this list of 
+ * conditions and the following disclaimer in the documentation and/or other materials 
+ * provided with the distribution. Neither the name of the Sun Microsystems nor the names of 
+ * is contributors may be used to endorse or promote products derived from this software 
+ * without specific prior written permission. 
+
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
+ * OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY 
+ * AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER 
+ * OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR 
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON 
+ * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
+
+/*
+ * JudoScriptEngine.java
+ * @author A. Sundararajan
+ */
+
+package com.sun.script.judo;
+
+import javax.script.*;
+import java.lang.reflect.*;
+import java.io.*;
+import java.util.*;
+
+import com.judoscript.*;
+import com.judoscript.bio.*;
+import com.judoscript.parser.*;
+import com.judoscript.util.*;
+
+public class JudoScriptEngine extends AbstractScriptEngine 
+        implements Compilable, Invocable { 
+
+    // my factory, may be null
+    private ScriptEngineFactory factory;
+    private volatile Script judoscript;
+
+    // my implementation for CompiledScript
+    private class JudoCompiledScript extends CompiledScript {
+        // my compiled code
+        private Object script;
+
+        JudoCompiledScript (Object script) {
+            this.script = script;
+        }
+
+        public ScriptEngine getEngine() {
+            return JudoScriptEngine.this;
+        }
+       
+        public Object eval(ScriptContext ctx) throws ScriptException {
+            return evalScript(script, ctx);
+        }
+    }
+
+    // Compilable methods
+    public CompiledScript compile(String code) 
+                                  throws ScriptException {  
+        return compile(new StringReader(code));
+    }
+
+    public CompiledScript compile (Reader reader) 
+                                  throws ScriptException {  
+        return new JudoCompiledScript(compileScript(reader, context));
+    }
+
+    // Invocable methods
+    public Object invoke(String name, Object... args) 
+                         throws ScriptException, NoSuchMethodException {       
+        return invoke(null, name, args);
+    }
+
+    public Object invoke(Object obj, String name, Object... args) 
+                         throws ScriptException, NoSuchMethodException {       
+        if (name == null) {
+            throw new NullPointerException("method name is null");
+        }
+        return invokeMethod(obj, name, args, Object.class);
+    }
+
+    public <T> T getInterface(final Object obj, Class<T> clazz) {
+        synchronized (this) {
+            if (judoscript == null) {
+                return null;
+            }
+        }
+        return (T) Proxy.newProxyInstance(
+              clazz.getClassLoader(),
+              new Class[] { clazz },
+              new InvocationHandler() {
+                  public Object invoke(Object proxy, Method m, Object[] args)
+                                       throws Throwable {
+                      return invokeMethod(obj, m.getName(), args, m.getReturnType());
+                  }
+              });
+    }
+
+    public <T> T getInterface(Class<T> clazz) {
+        return getInterface(null, clazz);
+    }
+
+    // ScriptEngine methods
+    public Object eval(String str, ScriptContext ctx) 
+                       throws ScriptException {	
+        return eval(new StringReader(str), ctx);
+    }
+
+    public Object eval(Reader reader, ScriptContext ctx)
+                       throws ScriptException { 
+        Object script = compileScript(reader, ctx);
+        return evalScript(script, ctx);
+    }
+
+    public ScriptEngineFactory getFactory() {
+	synchronized (this) {
+	    if (factory == null) {
+	    	factory = new JudoScriptEngineFactory();
+	    }
+        }
+	return factory;
+    }
+
+    public Bindings createBindings() {
+        return new SimpleBindings();
+    }
+
+    // package-private methods
+    void setFactory(ScriptEngineFactory factory) {
+        this.factory = factory;
+    }
+
+    // internals only below this point    
+    private Object compileScript(Reader reader, ScriptContext ctx) 
+                                 throws ScriptException {    
+        String fileName = (String) ctx.getAttribute(ScriptEngine.FILENAME);
+        if (fileName == null) {
+            fileName = "<unknown>";
+        }
+        try {
+            return JudoParser.parse(null, null, reader, null, 0, false);
+        } catch (Exception exp) {
+            throw new ScriptException(exp);
+        }
+    }
+
+    private static class MyRuntimeGlobalContext extends RuntimeGlobalContext {
+        private BufferedReader in;
+        private LinePrintWriter out;
+        private LinePrintWriter err;
+        private ScriptContext ctx;
+
+        void setScriptContext(ScriptContext ctx) {
+            this.ctx = ctx;
+            in = new BufferedReader(ctx.getReader());
+            out = new LinePrintWriter(ctx.getWriter());
+            err = new LinePrintWriter(ctx.getErrorWriter());
+        }
+
+        ScriptContext getScriptContext() {
+            return ctx;
+        }
+
+        public Variable resolveVariable(String name) throws Throwable {
+            Variable v = super.resolveVariable(name);
+            if (v == ValueSpecial.UNDEFINED) {
+                synchronized (ctx) {
+                    int scope = ctx.getAttributesScope(name);
+                    if (scope != -1) {
+                        Object obj = ctx.getAttribute(name, scope);
+                        v = JudoUtil.toVariable(obj);                            
+                    }
+                }
+            }
+            return v;
+        }
+        public BufferedReader getIn() {
+            return in;
+        }
+        public LinePrintWriter getOut() { 
+            return out;
+        }
+        public LinePrintWriter getErr() { 
+            return err;
+        }
+    }
+
+    private ThreadLocal<MyRuntimeGlobalContext> cache = new ThreadLocal<MyRuntimeGlobalContext>();
+    private MyRuntimeGlobalContext getRuntimeContext() {
+        MyRuntimeGlobalContext rtc = cache.get();
+        if (rtc == null) {
+            rtc = new MyRuntimeGlobalContext();
+            cache.set(rtc);
+            RT.pushContext(rtc);
+        }
+        return rtc;
+    }
+
+    private synchronized void saveScript(Script script) {
+        if (judoscript != null) {
+            script.acceptDecls(judoscript);
+        }
+        judoscript = script;
+    }
+    
+    private Object evalScript(Object script, ScriptContext ctx) 
+                            throws ScriptException { 
+        MyRuntimeGlobalContext rtc = getRuntimeContext();
+        ctx.setAttribute("context", ctx, ScriptContext.ENGINE_SCOPE);
+        ScriptContext oldContext = rtc.getScriptContext();
+        try {
+            saveScript((Script)script);            
+            rtc.setScriptContext(ctx);            
+            rtc.setScript(judoscript);
+            judoscript.start(rtc);
+            return null;
+        } catch (Exception e) {
+            throw new ScriptException(e);
+        } finally {
+            if (oldContext != null) rtc.setScriptContext(oldContext);
+        }
+    }    
+
+    private Object judoToJava(Variable value, Class type) throws Throwable {
+        if (type.isPrimitive()) {
+            if (type == Boolean.TYPE) {
+                return new Boolean(value.getBoolValue());
+            } else if (type == Byte.TYPE) {
+                return new Byte((byte)value.getLongValue());
+            } else if (type == Short.TYPE) {
+                return new Short((short)value.getLongValue());
+            } else if (type == Integer.TYPE) {
+                return new Integer((int)value.getLongValue());
+            } else if (type == Long.TYPE) {
+                return new Long((long)value.getLongValue());
+            } else if (type == Float.TYPE) {
+                return new Float((float)value.getDoubleValue());
+            } else if (type == Double.TYPE) {
+                return new Double(value.getDoubleValue());
+            } else if (type == Character.TYPE) {
+                String s = value.getStringValue();
+                if (s.length() == 1) {
+                    return new Character(s.charAt(0));
+                }
+            }
+        }
+        return value.isNil() ? null : value.getObjectValue();
+    }
+
+    private Object invokeMethod(Object obj, String name, 
+                      Object[] args, Class returnType) 
+                      throws ScriptException, NoSuchMethodException {
+        synchronized (this) {
+            if (judoscript == null) {
+                throw new NoSuchMethodException(name);
+            }
+        }
+        ObjectInstance thiz = null;
+        if (obj != null) {
+            if (obj instanceof ObjectInstance) {
+                thiz = (ObjectInstance) obj;
+            } else {
+                thiz = new JavaObject(obj);
+            }
+        }
+        MyRuntimeGlobalContext rtc = getRuntimeContext();
+        context.setAttribute("context", context, ScriptContext.ENGINE_SCOPE);
+        ScriptContext oldContext = rtc.getScriptContext();
+        try {            
+            int len = (args==null) ? 0 : args.length;
+            Expr[] params = new Expr[len];
+            for (int i=0; i < len; i++) {
+                params[i] = (args[i]==null) ? ValueSpecial.NIL
+                                   : JudoUtil.toVariable(args[i]);
+            }
+            Variable result;
+            if (thiz == null) {                
+                result = judoscript.invoke(name, params, null);
+            } else {
+                result = thiz.invoke(name, params, null);
+            }
+            return judoToJava(result, returnType);
+        } catch (Exception exp) {
+            throw new ScriptException(exp);
+        } catch (Throwable t) {
+            throw (ScriptException) new ScriptException(t.getMessage()).initCause(t);
+        } finally {
+            if (oldContext != null) rtc.setScriptContext(oldContext);
+        }
+    }
+} 

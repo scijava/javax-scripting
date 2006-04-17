@@ -1,0 +1,1 @@
+jrunscript -cp ../build/jacl-engine.jar:../lib/tcljava.jar:../lib/jacl.jar -l jacl $*

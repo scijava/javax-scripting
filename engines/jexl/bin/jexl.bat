@@ -1,0 +1,1 @@
+jrunscript -cp ../build/jexl-engine.jar;../lib/commons-jexl-1.0.jar;../lib/commons-logging-1.0.3.jar -l jexl %*
