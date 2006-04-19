@@ -25,6 +25,7 @@
 /*
  * JRubyScriptEngine.java
  * @author A. Sundararajan
+ * @author Roberto Chinnici
  */
 
 package com.sun.script.jruby;
@@ -47,7 +48,7 @@ public class JRubyScriptEngine extends AbstractScriptEngine
 
     // my factory, may be null
     private ScriptEngineFactory factory;
-    private Ruby runtime;
+    private IRuby runtime;
    
     public JRubyScriptEngine() {
         init(System.getProperty("com.sun.script.jruby.loadpath"));
@@ -215,6 +216,8 @@ public class JRubyScriptEngine extends AbstractScriptEngine
     private void setGlobalVariables(final ScriptContext ctx) {
         ctx.setAttribute("$context", ctx, ScriptContext.ENGINE_SCOPE);
         setGlobalVariables(new GlobalVariables(runtime) {
+                GlobalVariables parent = runtime.getGlobalVariables();
+                
                 public void define(String name, IAccessor accessor) {
                     assert name != null;
                     assert accessor != null;
@@ -241,7 +244,13 @@ public class JRubyScriptEngine extends AbstractScriptEngine
                     assert name != null;
                     assert name.startsWith("$");
                     synchronized (ctx) {
-                        return ctx.getAttributesScope(name) != -1;
+                        boolean defined = ctx.getAttributesScope(name) != -1;
+                        if (defined) {
+                            return true;
+                        }
+                        else {
+                            return parent.isDefined(name);
+                        }
                     }
                 }
 
@@ -272,13 +281,15 @@ public class JRubyScriptEngine extends AbstractScriptEngine
                     synchronized (ctx) {
                         int scope = ctx.getAttributesScope(name);
                         if (scope == -1) {
-                            scope = ScriptContext.ENGINE_SCOPE;
+                            return parent.get(name);
                         }
-                        Object obj = ctx.getAttribute(name, scope);
-                        if (obj instanceof IAccessor) {
-                            return ((IAccessor)obj).getValue();
-                        } else {
-                            return javaToRuby(obj);
+                        else {
+                            Object obj = ctx.getAttribute(name, scope);
+                            if (obj instanceof IAccessor) {
+                                return ((IAccessor)obj).getValue();
+                            } else {
+                                return javaToRuby(obj);
+                            }
                         }
                     }                    
                 }
@@ -296,13 +307,11 @@ public class JRubyScriptEngine extends AbstractScriptEngine
                         if (scope == -1) {
                             scope = ScriptContext.ENGINE_SCOPE;
                         }
-                        IRubyObject oldValue;
+                        IRubyObject oldValue = get(name);
                         Object obj = ctx.getAttribute(name, scope);
                         if (obj instanceof IAccessor) {
-                            oldValue = ((IAccessor)obj).getValue();
                             ((IAccessor)obj).setValue(value);
                         } else {                        
-                            oldValue = javaToRuby(obj);
                             ctx.setAttribute(name, rubyToJava(value), scope);
                         }
                         return oldValue;
@@ -320,6 +329,9 @@ public class JRubyScriptEngine extends AbstractScriptEngine
                                 }
                             }
                         }
+                    }
+                    for (Iterator names = parent.getNames(); names.hasNext();) {
+                        list.add(names.next());
                     }
                     return Collections.unmodifiableList(list).iterator();
                 }
