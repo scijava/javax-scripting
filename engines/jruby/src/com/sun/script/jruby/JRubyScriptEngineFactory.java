@@ -66,6 +66,7 @@ public class JRubyScriptEngineFactory implements ScriptEngineFactory {
             }
             buf.append(args[i]);
         }        
+        buf.append(')');
         return buf.toString();
     }
 
@@ -78,7 +79,7 @@ public class JRubyScriptEngineFactory implements ScriptEngineFactory {
     }
 
     public String getOutputStatement(String str) {
-        return "print(" + str + ")";
+        return "print('" + str + "')";
     }
 
     public String getParameter(String key) {
