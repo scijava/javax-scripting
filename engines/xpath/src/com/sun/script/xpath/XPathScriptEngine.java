@@ -380,21 +380,16 @@ public class XPathScriptEngine extends AbstractScriptEngine
     }
 
     private String readFully(Reader reader) throws ScriptException { 
-        BufferedReader in;
-        if (! (reader instanceof BufferedReader)) {
-            in = new BufferedReader(reader);
-        } else {
-            in = (BufferedReader) reader;
-        }
+        char[] arr = new char[8*1024]; // 8K at a time
         StringBuffer buf = new StringBuffer();
+        int numChars;
         try {
-            int ch = -1;
-            while ((ch = in.read()) != -1) {
-                buf.append((char)ch);
+            while ((numChars = reader.read(arr, 0, arr.length)) > 0) {
+                buf.append(arr, 0, numChars);
             }
-            return buf.toString();            
         } catch (IOException exp) {
             throw new ScriptException(exp);
-        }         
+        }
+        return buf.toString();
     }
 }
