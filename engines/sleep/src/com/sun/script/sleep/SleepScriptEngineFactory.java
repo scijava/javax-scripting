@@ -98,7 +98,7 @@ public class SleepScriptEngineFactory implements ScriptEngineFactory {
                 break;
             }
         }
-        buf.append("\"");
+        buf.append("\")");
         return buf.toString();
     }
 
