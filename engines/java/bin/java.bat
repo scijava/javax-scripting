@@ -1,0 +1,1 @@
+jrunscript -cp ../build/java-engine.jar -l java %*
