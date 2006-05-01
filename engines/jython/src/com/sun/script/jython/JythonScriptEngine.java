@@ -251,11 +251,11 @@ public class JythonScriptEngine extends AbstractScriptEngine
              * These are "single", "eval" and "exec". I don't clearly understand
              * the difference. But, with "eval" and "exec" certain features are
              * not working. For eg. with "eval" assignments are not working. 
-             * I've used "single". But, that is customizable by special attribute.
+             * I've used "exec". But, that is customizable by special attribute.
              */
             String mode = (String) ctx.getAttribute(JYTHON_COMPILE_MODE);
             if (mode == null) {
-                mode = "single";
+                mode = "exec";
             }
             return __builtin__.compile(script, fileName, mode);
         } catch (Exception exp) {
@@ -276,23 +276,16 @@ public class JythonScriptEngine extends AbstractScriptEngine
     }
 
     private String readFully(Reader reader) throws ScriptException { 
-        BufferedReader in;
-        if (! (reader instanceof BufferedReader)) {
-            in = new BufferedReader(reader);
-        } else {
-            in = (BufferedReader) reader;
-        }
+        char[] arr = new char[8*1024]; // 8K at a time
         StringBuffer buf = new StringBuffer();
+        int numChars;
         try {
-            String s = in.readLine();
-            while (s != null) {
-                buf.append("\n");
-                buf.append(s);
-                s = in.readLine();
+            while ((numChars = reader.read(arr, 0, arr.length)) > 0) {
+                buf.append(arr, 0, numChars);
             }
-            return buf.toString();            
         } catch (IOException exp) {
             throw new ScriptException(exp);
-        }         
+        }
+        return buf.toString();
     }
 }
