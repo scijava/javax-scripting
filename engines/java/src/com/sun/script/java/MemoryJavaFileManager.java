@@ -120,7 +120,7 @@ public final class MemoryJavaFileManager extends ForwardingJavaFileManager {
     static URI toURI(String name) {
         File file = new File(name);
         if (file.exists()) {
-            return new File(name).toURI();
+            return file.toURI();
         } else {
             try {
                 return new URI("string", "com.sun.script.java", name);
