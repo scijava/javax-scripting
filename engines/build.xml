@@ -5,6 +5,7 @@
   <target name="clean">
     <ant dir="groovy/make" target="clean"/>
     <ant dir="jacl/make" target="clean"/>
+    <ant dir="java/make" target="clean"/>
     <ant dir="jelly/make" target="clean"/>
     <ant dir="jexl/make" target="clean"/>
     <ant dir="jruby/make" target="clean"/>
@@ -21,6 +22,7 @@
   <target name="all" description="Builds sources and deployment jars">
     <ant dir="groovy/make"/>
     <ant dir="jacl/make"/>
+    <ant dir="java/make"/>
     <ant dir="jelly/make"/>
     <ant dir="jexl/make"/>
     <ant dir="jruby/make"/>
