@@ -99,7 +99,25 @@ public class GroovyScriptEngineFactory extends ScriptEngineFactoryBase {
     }    
     
     public String getOutputStatement(String toDisplay) {
-        return "println(" + toDisplay + ")";
+        StringBuffer buf = new StringBuffer();
+        buf.append("println(\"");
+        int len = toDisplay.length();
+        for (int i = 0; i < len; i++) {
+            char ch = toDisplay.charAt(i);
+            switch (ch) {
+            case '"':
+                buf.append("\\\"");
+                break;
+            case '\\':
+                buf.append("\\\\");
+                break;
+            default:
+                buf.append(ch);
+                break;
+            }
+        }
+        buf.append("\")");
+        return buf.toString();
     }    
     
     public String getProgram(String... statements) {
