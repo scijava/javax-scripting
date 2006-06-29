@@ -15,7 +15,7 @@
 	</STYLE>
 </HEAD>
 <BODY LANG="en-US" TEXT="#000000" BGCOLOR="#ffffff" DIR="LTR">
-<H1>scripting</H1>
+<H1>scripting.dev.java.net</H1>
 <P> Mustang (Java SE 6)  will contain a Scripting Framework based on
 the Reference implementation of 
 </P>
@@ -42,6 +42,66 @@ cases their licensing terms impose conditions and restrictions on
 software derived from them or using them.  The text of each
 third-party license is included. 
 </P>
+
+<h3>Working with the source</h3>
+
+<h4>Build Requirements</h4>
+<ul>
+<li><a href="https:/mustang.dev.java.net">Latest JDK build of Mustang from
+https://mustang.dev.java.net</a></li>
+<li><a href="http://ant.apache.org">Ant build tool from http://ant.apache.org</a> - you need ant version 1.5.4 or above</li>
+<li><a href="https://www.dev.java.net/nonav/scdocs/ddCVS.html">cvs</a> to checkout the sources for this project</li>
+</ul>
+
+<h4>Steps to build</h4>
+<ol>
+<li><a href="https://www.dev.java.net/scdocs/ddUsingCVS_command-line.html">CVS checkout</a> the scripting project in a directory, say $SCRIPTING_SRC
+<li>To build all script engines, use the following commands:
+<pre>
+<code>
+    cd  <b>$SCRIPTING_SRC/engines</b>
+    ant
+</code>
+</pre>
+<li>To build a specific script engine, use the following commands:
+<pre>
+<code>
+    cd <b>$SCRIPTING_SRC/engines/&lt;script-engine-dir&gt;/make</b>
+    ant
+</code>
+</pre>
+</ol>
+
+<h4>Steps to run/use</h4>
+
+<ol>
+<li>cd <b><code>$SCRIPTING_SRC/engines/&lt;script-engine-dir&gt;/bin</code></b>
+<li>Use the shell script (or batch file) under the above dir
+to run the script engine. These are wrappers over <a href="http://java.sun.com/javase/6/docs/technotes/tools/share/jrunscript.html">jrunscript</a> tool shipped with Mustang JDK.
+</ol>
+
+<p>
+To use a specific script engine for language <i>Foo</i> in your application, 
+you have put <i>Foo-</i>engine.jar file and associated jar files in $SCRIPTING_SRC/engines/<i>Foo</i>/lib/ in your CLASSPATH. In your Java class, you can get
+<code><a href="http://java.sun.com/javase/6/docs/api/javax/script/ScriptEngine.html">ScriptEngine</a></code> instance using the following snippet:
+<pre>
+<code>
+    <a href="http://java.sun.com/javase/6/docs/api/javax/script/ScriptEngineManager.html">ScriptEngineManager</a> m = new ScriptEngineManager();
+    <a href="http://java.sun.com/javase/6/docs/api/javax/script/ScriptEngine.html">ScriptEngine</a> fooEngine = m.getEngineByName("Foo");
+</code>
+</pre>
+</p>
+
+<h3>Useful scripts</h3>
+<p>
+In addition to the JSR-223 script engines for many languages, we want to
+create/maintain useful scripts in this project. To start with, we have added 
+few scripts under <b><code>scripts/javascript/ajax</code></b> directory. 
+</p>
+<p>These include <b><code>ajax.js</code></b> (script
+to support XMLHttpRequest, XMLSerializer, DOMParser etc. for Mustang's
+JavaScript engine) and two test scripts (test.js, test2.js) to test the same.
+</p>
 
 <h3>Script Engines in this project (so far!)</h3>
 <table border=1>
@@ -275,15 +335,6 @@ JDK implementation of javax.xml.transform is used.
 <li>BeanShell (<a href="http://beanshell.org">http://beanshell.org</a>)
 <li>PHP (<a href="http://php-java-bridge.sourceforge.net/">http://php-java-bridge.sourceforge.net/</a>)
 </ul>
-
-<h3>Useful scripts</h3>
-<p>
-In addition to the JSR-223 script engines for many languages, we want to
-create/maintain useful scripts as well. To start, we have added few scripts
-under scripts/javascript/ajax directory. These include ajax.js (script
-to support XMLHttpRequest, XMLSerializer, DOMParser etc. for Mustang's
-JavaScript engine) and two test scripts (test.js, test2.js) to test this.
-</p>
 
 </BODY>
 </HTML>
