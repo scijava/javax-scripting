@@ -10,14 +10,14 @@ Build instructions:
 1. To build all script engines, use build.xml in the current directory.
 You may run
 
-  ./ant
+  ant
 
 to build all script engines.
 
 2. To build an individual script engine, use the following instructions:
 
   cd <script-engine-dir>/make
-  ./ant
+  ant
 
 To run:
 
