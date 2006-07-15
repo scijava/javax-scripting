@@ -41,12 +41,12 @@ import javax.tools.*;
  * Simple interface to Java compiler using JSR 199 Compiler API.
  */
 public class JavaCompiler {    
-    private JavaCompilerTool tool;
+    private javax.tools.JavaCompiler tool;
     private StandardJavaFileManager stdManager;
 
     public JavaCompiler() {
-        tool = ToolProvider.getSystemJavaCompilerTool();
-        stdManager = tool.getStandardFileManager(null);
+        tool = ToolProvider.getSystemJavaCompiler();
+        stdManager = tool.getStandardFileManager(null, null, null);
     }
 
     public Map<String, byte[]> compile(String source, String fileName) {
@@ -102,14 +102,11 @@ public class JavaCompiler {
         }
        
         // create a compilation task
-        JavaCompilerTool.CompilationTask task =
+        javax.tools.JavaCompiler.CompilationTask task =
             tool.getTask(err, manager, diagnostics, 
                          options, null, compUnits);
 
-        // start compilation
-        task.run();
-
-        if (task.getResult() == false) {
+        if (task.call() == false) {
             PrintWriter perr = new PrintWriter(err);
             for (Diagnostic diagnostic : diagnostics.getDiagnostics()) {                
                 perr.println(diagnostic.getMessage(null));

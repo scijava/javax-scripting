@@ -211,7 +211,7 @@ public class JavaScriptEngine extends AbstractScriptEngine
         if (scope != -1) {
             return ctx.getAttribute(ScriptEngine.FILENAME, scope).toString();
         } else {
-            return "<unnamed>.java";
+            return "$unnamed.java";
         }
     }
 
