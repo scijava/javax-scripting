@@ -85,35 +85,45 @@ public class SleepScriptEngine extends AbstractScriptEngine
     }
 
     // Invocable methods
-    public Object invoke(String name, Object... args) 
+    public Object invokeFunction(String name, Object... args) 
                          throws ScriptException, NoSuchMethodException {       
-        return invoke(null, name, args);
+        return invokeImpl(null, name, args, Object.class);
     }
 
-    public Object invoke(Object obj, String name, Object... args) 
+    public Object invokeMethod(Object obj, String name, Object... args) 
                          throws ScriptException, NoSuchMethodException {       
-        if (name == null) {
-            throw new NullPointerException("method name is null");
+        if (obj == null) {
+            throw new IllegalArgumentException("script object is null");
         }
-        return invokeMethod(obj, name, args, Object.class);
+        return invokeImpl(obj, name, args, Object.class);
     }
 
     public <T> T getInterface(Object obj, Class<T> clazz) {
-        final Object thiz = obj;         
+        if (obj == null) {
+            throw new IllegalArgumentException("script object is null");
+        }
+        return makeInterface(obj, clazz);
+    }
 
+    public <T> T getInterface(Class<T> clazz) {
+        return makeInterface(null, clazz);
+    }
+
+    public <T> T makeInterface(Object obj, Class<T> clazz) {
+        if (clazz == null || !clazz.isInterface()) {
+            throw new IllegalArgumentException("interface Class expected");
+        }
+
+        final Object thiz = obj;         
         return (T) Proxy.newProxyInstance(
               clazz.getClassLoader(),
               new Class[] { clazz },
               new InvocationHandler() {
                   public Object invoke(Object proxy, Method m, Object[] args)
                                        throws Throwable {
-                      return invokeMethod(thiz, m.getName(), args, m.getReturnType());
+                      return invokeImpl(thiz, m.getName(), args, m.getReturnType());
                   }
               });
-    }
-
-    public <T> T getInterface(Class<T> clazz) {
-        return getInterface(null, clazz);
     }
 
     // ScriptEngine methods
@@ -251,9 +261,12 @@ public class SleepScriptEngine extends AbstractScriptEngine
         }
     }    
 
-    private Object invokeMethod(Object thiz, String name, 
+    private Object invokeImpl(Object thiz, String name, 
                       Object[] args, Class returnType) 
                       throws ScriptException, NoSuchMethodException {
+        if (name == null) {
+            throw new NullPointerException("method name is null");
+        }
         // Sleep routine names start with a '&'
         if (!name.startsWith("&")) {
             name = "&" + name;

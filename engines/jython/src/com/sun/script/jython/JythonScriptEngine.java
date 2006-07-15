@@ -86,17 +86,24 @@ public class JythonScriptEngine extends AbstractScriptEngine
     }
 
     // Invocable methods
-    public Object invoke(String name, Object... args) 
+    public Object invokeFunction(String name, Object... args) 
                          throws ScriptException, NoSuchMethodException {       
-        return invoke(null, name, args);
+        return invokeImpl(null, name, args);
     }
 
-    public Object invoke(Object obj, String name, Object... args) 
+    public Object invokeMethod(Object obj, String name, Object... args) 
+                         throws ScriptException, NoSuchMethodException {       
+        if (obj == null) {
+            throw new IllegalArgumentException("script object is null");
+        }
+        return invokeImpl(obj, name, args);
+    }
+
+    private Object invokeImpl(Object obj, String name, Object... args) 
                          throws ScriptException, NoSuchMethodException {       
         if (name == null) {
             throw new NullPointerException("method name is null");
         }
-
         setSystemState();
          
         PyObject thiz;
@@ -127,6 +134,20 @@ public class JythonScriptEngine extends AbstractScriptEngine
     
 
     public <T> T getInterface(Object obj, Class<T> clazz) {
+        if (obj == null) {
+            throw new IllegalArgumentException("script object is null");
+        }
+        return makeInterface(obj, clazz);
+    }
+
+    public <T> T getInterface(Class<T> clazz) {
+        return makeInterface(null, clazz);
+    }
+
+    private <T> T makeInterface(Object obj, Class<T> clazz) {
+        if (clazz == null || !clazz.isInterface()) {
+            throw new IllegalArgumentException("interface Class expected");
+        }
         final Object thiz = obj;
         return (T) Proxy.newProxyInstance(
               clazz.getClassLoader(),
@@ -134,16 +155,13 @@ public class JythonScriptEngine extends AbstractScriptEngine
               new InvocationHandler() {
                   public Object invoke(Object proxy, Method m, Object[] args)
                                        throws Throwable {
-                      Object res = JythonScriptEngine.this.invoke(
+                      Object res = invokeImpl(
                                        thiz, m.getName(), args);                      
                       return py2java(java2py(res), m.getReturnType());
                   }
               });
     }
 
-    public <T> T getInterface(Class<T> clazz) {
-        return getInterface(null, clazz);
-    }
 
     // ScriptEngine methods
     public Object eval(String str, ScriptContext ctx) 

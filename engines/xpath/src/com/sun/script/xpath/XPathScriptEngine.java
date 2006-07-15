@@ -272,7 +272,7 @@ public class XPathScriptEngine extends AbstractScriptEngine
        return new XPathFunction() {
             public Object evaluate(List args) {
                 try {
-                    return invocable.invoke(funcName, args.toArray());
+                    return invocable.invokeFunction(funcName, args.toArray());
                 } catch (Exception exp) {
                     throw new RuntimeException(exp);
                 }
