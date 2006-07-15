@@ -76,24 +76,38 @@ public class JudoScriptEngine extends AbstractScriptEngine
     }
 
     // Invocable methods
-    public Object invoke(String name, Object... args) 
+    public Object invokeFunction(String name, Object... args) 
                          throws ScriptException, NoSuchMethodException {       
-        return invoke(null, name, args);
+        return invokeImpl(null, name, args, Object.class);
     }
 
-    public Object invoke(Object obj, String name, Object... args) 
+    public Object invokeMethod(Object obj, String name, Object... args) 
                          throws ScriptException, NoSuchMethodException {       
-        if (name == null) {
-            throw new NullPointerException("method name is null");
+        if (obj == null) {
+            throw new IllegalArgumentException("script object is null");
         }
-        return invokeMethod(obj, name, args, Object.class);
+        return invokeImpl(obj, name, args, Object.class);
     }
 
-    public <T> T getInterface(final Object obj, Class<T> clazz) {
+    public <T> T getInterface(Object obj, Class<T> clazz) {
         synchronized (this) {
             if (judoscript == null) {
                 return null;
             }
+        }
+        if (obj == null) {
+            throw new IllegalArgumentException("script object is null");
+        }
+        return makeInterface(obj, clazz);
+    }
+
+    public <T> T getInterface(Class<T> clazz) {
+        return makeInterface(null, clazz);
+    }
+
+    private <T> T makeInterface(final Object obj, Class<T> clazz) {
+        if (clazz == null || !clazz.isInterface()) {
+            throw new IllegalArgumentException("interface Class expected");
         }
         return (T) Proxy.newProxyInstance(
               clazz.getClassLoader(),
@@ -101,13 +115,9 @@ public class JudoScriptEngine extends AbstractScriptEngine
               new InvocationHandler() {
                   public Object invoke(Object proxy, Method m, Object[] args)
                                        throws Throwable {
-                      return invokeMethod(obj, m.getName(), args, m.getReturnType());
+                      return invokeImpl(obj, m.getName(), args, m.getReturnType());
                   }
               });
-    }
-
-    public <T> T getInterface(Class<T> clazz) {
-        return getInterface(null, clazz);
     }
 
     // ScriptEngine methods
@@ -257,9 +267,12 @@ public class JudoScriptEngine extends AbstractScriptEngine
         return value.isNil() ? null : value.getObjectValue();
     }
 
-    private Object invokeMethod(Object obj, String name, 
+    private Object invokeImpl(Object obj, String name, 
                       Object[] args, Class returnType) 
                       throws ScriptException, NoSuchMethodException {
+        if (name == null) {
+            throw new NullPointerException("method name is null");
+        }
         synchronized (this) {
             if (judoscript == null) {
                 throw new NoSuchMethodException(name);
