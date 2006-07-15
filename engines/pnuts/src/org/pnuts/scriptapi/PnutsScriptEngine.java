@@ -478,31 +478,57 @@ public class PnutsScriptEngine implements ScriptEngine, Compilable, Invocable {
 	}
 
 	/**
-	 * Calls a procedure compiled during a previous script execution, which is retained in 
+	 * Calls a method compiled during a previous script execution, which is retained in 
 	 * the state of the <code>ScriptEngine<code>.
 	 *
-	 * @param name The name of the procedure to be called.
+	 * @param name The name of the method to be called.
 	 *
-	 * @param thiz If the procedure is a member  of a class
-	 * defined in the script and thiz is an instance of that class
+	 * @param thiz is an instance of that class
 	 * returned by a previous execution or invocation, the named method is 
 	 * called through that instance.
-	 * If classes are not supported in the scripting language or 
-	 * if the procedure is not a member function of any class, the argument must be 
-	 * <code>null</code>.
 	 *
-	 * @param args Arguments to pass to the procedure.  The rules for converting
+	 * @param args Arguments to pass to the method.  The rules for converting
 	 * the arguments to scripting variables are implementation-specific.
 	 *
-	 * @return The value returned by the procedure.  The rules for converting the scripting variable returned by the procedure to a Java Object are implementation-specific.
+	 * @return The value returned by the method.  The rules for converting the scripting variable returned by the method to a Java Object are implementation-specific.
+	 *
+	 * @throws ScriptException if an error occurrs during invocation of the method.
+	 * @throws NoSuchMethodException if method with given name or matching argument types cannot be found.
+	 * @throws NullPointerException if method name is null.
+         * @throws IllegalArgumentException if thiz is null or not a script
+         *         object
+	 */
+	public Object invokeMethod(Object thiz, String name, Object... args)
+		throws ScriptException, NoSuchMethodException
+	{
+                if (thiz == null) {
+                    throw new IllegalArgumentException("script object is null");
+                }
+                return invokeImpl(thiz, name, args);
+        }
+
+	/**
+	 * Used to call top-level procedures defined in scripts.
+	 *
+	 * @param args Arguments to pass to the procedure
+	 * @return The value returned by the procedure
 	 *
 	 * @throws ScriptException if an error occurrs during invocation of the method.
 	 * @throws NoSuchMethodException if method with given name or matching argument types cannot be found.
 	 * @throws NullPointerException if method name is null.
 	 */
-	public Object invoke(Object thiz, String name, Object... args)
-		throws ScriptException, NoSuchMethodException
+	public Object invokeFunction(String name, Object... args)
+		throws ScriptException, NoSuchMethodException 
 	{
+		return invokeImpl(null, name, args);
+	}
+
+        private Object invokeImpl(Object thiz, String name, Object... args)
+		throws ScriptException, NoSuchMethodException 
+        {
+                if (name == null) {
+                    throw new NullPointerException("method name is null");
+                }
 		try {
 			if (thiz != null){
 				Class cls = thiz.getClass();
@@ -530,22 +556,6 @@ public class PnutsScriptEngine implements ScriptEngine, Compilable, Invocable {
 		}
 	}
 
-	/**
-	 * Same as invoke(Object, String, Object...) with <code>null</code> as the first
-	 * argument.  Used to call top-level procedures defined in scripts.
-	 *
-	 * @param args Arguments to pass to the procedure
-	 * @return The value returned by the procedure
-	 *
-	 * @throws ScriptException if an error occurrs during invocation of the method.
-	 * @throws NoSuchMethodException if method with given name or matching argument types cannot be found.
-	 * @throws NullPointerException if method name is null.
-	 */
-	public Object invoke(String name, Object... args)
-		throws ScriptException, NoSuchMethodException 
-	{
-		return invoke(null, name, args);
-	}
 
 	/**
 	 * Returns an implementation of an interface using procedures compiled in 
