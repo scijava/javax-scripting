@@ -31,19 +31,29 @@
 package com.sun.script.groovy;
 import javax.script.*;
 import java.util.*;
-import com.sun.script.util.*;
 
-public class GroovyScriptEngineFactory extends ScriptEngineFactoryBase {
+public class GroovyScriptEngineFactory implements ScriptEngineFactory {
     
-    
-    public GroovyScriptEngineFactory() {
+    public String getEngineName() {
+        return "groovy";
+    }
+
+    public String getEngineVersion() {
+        return "1.0-JSR-06";
+    }
+
+    public String getLanguageName() {
+        return "groovy";
+    }
+
+    public String getLanguageVersion() {
+        return "1.0";
     }
     
-   
     public List<String> getExtensions() {
         return extensions;
     }
-    
+
     public List<String> getMimeTypes() {
         return mimeTypes;
     }
@@ -63,7 +73,7 @@ public class GroovyScriptEngineFactory extends ScriptEngineFactoryBase {
         } else if (key.equals(ScriptEngine.LANGUAGE)) {
             return "Groovy";
         } else if (key.equals(ScriptEngine.LANGUAGE_VERSION)) {
-            return "1.0-jsr-05";
+            return "1.0-JSR-06";
         } else if (key.equals("THREADING")) {
             return "MULTITHREADED";
         } else {

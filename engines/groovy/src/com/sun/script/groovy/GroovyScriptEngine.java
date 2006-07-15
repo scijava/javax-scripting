@@ -48,7 +48,6 @@ import org.codehaus.groovy.runtime.InvokerHelper;
 import org.codehaus.groovy.control.CompilerConfiguration;
 import org.codehaus.groovy.control.CompilationFailedException;
 import java.lang.reflect.*;
-import com.sun.script.util.*;
 
 public class GroovyScriptEngine 
     extends AbstractScriptEngine implements Compilable, Invocable {
@@ -60,7 +59,6 @@ public class GroovyScriptEngine
     private Script currentScript;
     public static int counter;
     private GroovyScriptEngineFactory factory;
-    private InterfaceImplementor interfaceImplementor;
     private Script scriptObject;
  
     static {
@@ -71,14 +69,11 @@ public class GroovyScriptEngine
     
     public GroovyScriptEngine() {    
         
-        setBindings(createBindings() , ScriptContext.ENGINE_SCOPE);
- 
         currentClass = null;
         classMap = new HashMap();
         loader = new GroovyClassLoader(Thread.currentThread().getContextClassLoader(),
                                         new CompilerConfiguration());
         factory = null; 
-        interfaceImplementor = new InterfaceImplementor(this);
     }
     
    
@@ -115,28 +110,37 @@ public class GroovyScriptEngine
                 
         try {
             
-            Bindings runtimeScope = new GroovyBindings(context.getBindings(ScriptContext.ENGINE_SCOPE));                       
-            
             //add context to bindings
-            runtimeScope.put("context", context);
-        
+            context.setAttribute("context", context, ScriptContext.ENGINE_SCOPE);
         
             //direct output to context.getWriter
             Writer writer = context.getWriter();
             
-            runtimeScope.put("out", (writer instanceof PrintWriter) ? 
+            context.setAttribute("out", (writer instanceof PrintWriter) ? 
                                     writer :
-                                    new PrintWriter(writer));
-                                    
-            runtimeScope.put("context", context);
-                                     
-            Bindings global = context.getBindings(ScriptContext.GLOBAL_SCOPE);
-            
-            if (global != null) {
-                ((GroovyBindings)runtimeScope).setGlobal(global);
-            }
-            
-            Binding binding = new Binding(runtimeScope);
+                                    new PrintWriter(writer),
+                                    ScriptContext.ENGINE_SCOPE);
+
+            final ScriptContext ctx = context;
+            Binding binding = new Binding(context.getBindings(ScriptContext.ENGINE_SCOPE)) {
+                                  public Object getVariable(String name) {
+                                      int scope = ctx.getAttributesScope(name);
+                                      if (scope != -1) {
+                                          return ctx.getAttribute(name, scope);
+                                      } else {
+                                          return super.getVariable(name);
+                                      }
+                                  }
+                                  public void setVariable(String name, Object value) {
+                                      int scope = ctx.getAttributesScope(name);
+                                      if (scope != -1) {
+                                          ctx.setAttribute(name, value, scope);
+                                      } else {
+                                          super.setVariable(name, value);
+                                      }
+                                  }
+                              };
+
             scriptObject = InvokerHelper.createScript(scriptClass, binding);
             return scriptObject.run();
        
@@ -147,7 +151,7 @@ public class GroovyScriptEngine
     
     
     public Bindings createBindings() {
-        return new GroovyBindings();
+        return new SimpleBindings();
     }
     
     public ScriptEngineFactory getFactory() {
@@ -211,14 +215,24 @@ public class GroovyScriptEngine
    
    /* Invocable methods.
     */
-   public Object invoke(String name, Object... args) 
+   public Object invokeFunction(String name, Object... args) 
             throws ScriptException, NoSuchMethodException  {
-       return invoke(null, name, args);
+       return invokeImpl(null, name, args);
    }
    
-   public Object invoke(Object thiz, String name, Object... args) 
+   public Object invokeMethod(Object thiz, String name, Object... args) 
             throws ScriptException, NoSuchMethodException  {
+       if (thiz == null) {
+           throw new IllegalArgumentException("script object is null");
+       }
+       return invokeImpl(thiz, name, args);
+   }
 	        
+   private Object invokeImpl(Object thiz, String name, Object... args) 
+            throws ScriptException, NoSuchMethodException  {
+       if (name == null) {
+           throw new NullPointerException("method name is null");
+       }
        //use reflection as with any java object.. If a this
        //reference is passed, use it.  Otherwise, use the current
        //GroovyClass.    
@@ -272,67 +286,28 @@ public class GroovyScriptEngine
    } 
    
    public <T> T getInterface(Class<T> clasz) {
-       try {
-            return interfaceImplementor.getInterface(null, clasz);
-       } catch (ScriptException e) {
-           return null;
-       }
+       return makeInterface(null, clasz);
    }
 
    public <T> T getInterface(Object thiz, Class<T> clasz) {
-       try {
-            return interfaceImplementor.getInterface(thiz, clasz);
-       } catch (ScriptException e) {
-           return null;
+       if (thiz == null) {
+           throw new IllegalArgumentException("script object is null");
        }
+       return makeInterface(thiz, clasz);
    }
 
-   /*
-    * Bindings implementation where get delegates to globalScope.get
-    * if return value for get is null.
-    */
-   public static class GroovyBindings extends BindingsImpl {
-     
-      private Bindings root; 
-      
-      public GroovyBindings() {
-          root = new SimpleBindings();
-      }
-      
-      public GroovyBindings(Bindings n) {
-          root = n;
-      }
-         
-      public Object getImpl(String key) {
-          return root.get(key);
-      }
-      
-      public String[] getNames() {
-          Iterator it = root.keySet().iterator(); 
-          ArrayList ret = new ArrayList();
-          
-          while (it.hasNext()) {
-              ret.add(it.next());
-          }
-          
-          int size = ret.size();
-          
-          return size != 0 ? 
-                 (String[])ret.toArray(new String[size]) :
-                 null;
-          
-              
-      }
-      
-      public Object putImpl(String key, Object value) {
-          return root.put(key, value);
-      }
-      
-      public Object removeImpl(String key) {
-          return root.remove(key);
-      }
-      
+   public <T> T makeInterface(Object obj, Class<T> clazz) {
+       final Object thiz = obj;
+       if (clazz == null || !clazz.isInterface()) {
+           throw new IllegalArgumentException("interface Class expected");
+       }
+       return (T) Proxy.newProxyInstance(
+             clazz.getClassLoader(),
+             new Class[] { clazz },
+             new InvocationHandler() {
+                 public Object invoke(Object proxy, Method m, Object[] args) throws Throwable {
+                     return invokeImpl(thiz, m.getName(), args);
+                 }
+             });
    }
-   
-  
 }
