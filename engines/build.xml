@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <project name="Build All Engines" default="all" basedir=".">
+  <property name="dist.dir" value="jsr223-engines"/>
 
   <target name="clean">
     <ant dir="groovy/make" target="clean"/>
@@ -17,6 +18,9 @@
     <ant dir="sleep/make" target="clean"/>
     <ant dir="xpath/make" target="clean"/>
     <ant dir="xslt/make" target="clean"/>
+    <delete dir="${dist.dir}"/>
+    <delete file="${dist.dir}.tar.gz"/>
+    <delete file="${dist.dir}.zip"/>
   </target>
 
   <target name="all" description="Builds sources and deployment jars">
@@ -34,6 +38,201 @@
     <ant dir="sleep/make"/>
     <ant dir="xpath/make"/>
     <ant dir="xslt/make"/>
+  </target>
+
+  <target name="images" description="Prepare binary download bundle"
+          depends="all">
+    <mkdir dir="${dist.dir}"/>
+
+    <property name="groovy.dir" value="${dist.dir}/groovy"/>
+    <mkdir dir="${groovy.dir}/build"/>
+    <mkdir dir="${groovy.dir}/lib"/>
+    <mkdir dir="${groovy.dir}/bin"/>
+    <copy todir="${groovy.dir}/build">
+      <fileset file="groovy/build/*.jar"/>
+    </copy>
+    <copy todir="${groovy.dir}/bin">
+      <fileset file="groovy/bin/*"/>
+    </copy>
+    <copy file="groovy/README.TXT" todir="${groovy.dir}"/>
+    <copy file="groovy/LICENSE.TXT" todir="${groovy.dir}"/>
+
+    <property name="jacl.dir" value="${dist.dir}/jacl"/>
+    <mkdir dir="${jacl.dir}/build"/>
+    <mkdir dir="${jacl.dir}/lib"/>
+    <mkdir dir="${jacl.dir}/bin"/>
+    <copy todir="${jacl.dir}/build">
+      <fileset file="jacl/build/*.jar"/>
+    </copy>
+    <copy todir="${jacl.dir}/bin">
+      <fileset file="jacl/bin/*"/>
+    </copy>
+    <copy file="jacl/README.TXT" todir="${jacl.dir}"/>
+    <copy file="jacl/LICENSE.TXT" todir="${jacl.dir}"/>
+
+    <property name="java.dir" value="${dist.dir}/java"/>
+    <mkdir dir="${java.dir}/build"/>
+    <mkdir dir="${java.dir}/lib"/>
+    <mkdir dir="${java.dir}/bin"/>
+    <copy todir="${java.dir}/build">
+      <fileset file="java/build/*.jar"/>
+    </copy>
+    <copy todir="${java.dir}/bin">
+      <fileset file="java/bin/*"/>
+    </copy>
+    <copy file="java/README.TXT" todir="${java.dir}"/>
+    <copy file="java/LICENSE.TXT" todir="${java.dir}"/>
+
+    <property name="jelly.dir" value="${dist.dir}/jelly"/>
+    <mkdir dir="${jelly.dir}/build"/>
+    <mkdir dir="${jelly.dir}/lib"/>
+    <mkdir dir="${jelly.dir}/bin"/>
+    <copy todir="${jelly.dir}/build">
+      <fileset file="jelly/build/*.jar"/>
+    </copy>
+    <copy todir="${jelly.dir}/bin">
+      <fileset file="jelly/bin/*"/>
+    </copy>
+    <copy file="jelly/README.TXT" todir="${jelly.dir}"/>
+    <copy file="jelly/LICENSE.TXT" todir="${jelly.dir}"/>
+
+    <property name="jexl.dir" value="${dist.dir}/jexl"/>
+    <mkdir dir="${jexl.dir}/build"/>
+    <mkdir dir="${jexl.dir}/lib"/>
+    <mkdir dir="${jexl.dir}/bin"/>
+    <copy todir="${jexl.dir}/build">
+      <fileset file="jexl/build/*.jar"/>
+    </copy>
+    <copy todir="${jexl.dir}/bin">
+      <fileset file="jexl/bin/*"/>
+    </copy>
+    <copy file="jexl/README.TXT" todir="${jexl.dir}"/>
+    <copy file="jexl/LICENSE.TXT" todir="${jexl.dir}"/>
+
+    <property name="jruby.dir" value="${dist.dir}/jruby"/>
+    <mkdir dir="${jruby.dir}/build"/>
+    <mkdir dir="${jruby.dir}/lib"/>
+    <mkdir dir="${jruby.dir}/bin"/>
+    <copy todir="${jruby.dir}/build">
+      <fileset file="jruby/build/*.jar"/>
+    </copy>
+    <copy todir="${jruby.dir}/bin">
+      <fileset file="jruby/bin/*"/>
+    </copy>
+    <copy file="jruby/README.TXT" todir="${jruby.dir}"/>
+    <copy file="jruby/LICENSE.TXT" todir="${jruby.dir}"/>
+
+    <property name="judo.dir" value="${dist.dir}/judo"/>
+    <mkdir dir="${judo.dir}/build"/>
+    <mkdir dir="${judo.dir}/lib"/>
+    <mkdir dir="${judo.dir}/bin"/>
+    <copy todir="${judo.dir}/build">
+      <fileset file="judo/build/*.jar"/>
+    </copy>
+    <copy todir="${judo.dir}/bin">
+      <fileset file="judo/bin/*"/>
+    </copy>
+    <copy file="judo/README.TXT" todir="${judo.dir}"/>
+    <copy file="judo/LICENSE.TXT" todir="${judo.dir}"/>
+    
+    <property name="jython.dir" value="${dist.dir}/jython"/>
+    <mkdir dir="${jython.dir}/build"/>
+    <mkdir dir="${jython.dir}/lib"/>
+    <mkdir dir="${jython.dir}/bin"/>
+    <copy todir="${jython.dir}/build">
+      <fileset file="jython/build/*.jar"/>
+    </copy>
+    <copy todir="${jython.dir}/bin">
+      <fileset file="jython/bin/*"/>
+    </copy>
+    <copy file="jython/README.TXT" todir="${jython.dir}"/>
+    <copy file="jython/LICENSE.TXT" todir="${jython.dir}"/>
+
+    <property name="ognl.dir" value="${dist.dir}/ognl"/>
+    <mkdir dir="${ognl.dir}/build"/>
+    <mkdir dir="${ognl.dir}/lib"/>
+    <mkdir dir="${ognl.dir}/bin"/>
+    <copy todir="${ognl.dir}/build">
+      <fileset file="ognl/build/*.jar"/>
+    </copy>
+    <copy todir="${ognl.dir}/bin">
+      <fileset file="ognl/bin/*"/>
+    </copy>
+    <copy file="ognl/README.TXT" todir="${ognl.dir}"/>
+    <copy file="ognl/LICENSE.TXT" todir="${ognl.dir}"/>
+
+    <property name="pnuts.dir" value="${dist.dir}/pnuts"/>
+    <mkdir dir="${pnuts.dir}/build"/>
+    <mkdir dir="${pnuts.dir}/lib"/>
+    <mkdir dir="${pnuts.dir}/bin"/>
+    <copy todir="${pnuts.dir}/build">
+      <fileset file="pnuts/build/*.jar"/>
+    </copy>
+    <copy todir="${pnuts.dir}/bin">
+      <fileset file="pnuts/bin/*"/>
+    </copy>
+    <copy file="pnuts/README.TXT" todir="${pnuts.dir}"/>
+    <copy file="pnuts/LICENSE.TXT" todir="${pnuts.dir}"/>
+
+    <property name="scheme.dir" value="${dist.dir}/scheme"/>
+    <mkdir dir="${scheme.dir}/build"/>
+    <mkdir dir="${scheme.dir}/lib"/>
+    <mkdir dir="${scheme.dir}/bin"/>
+    <copy todir="${scheme.dir}/build">
+      <fileset file="scheme/build/*.jar"/>
+    </copy>
+    <copy todir="${scheme.dir}/bin">
+      <fileset file="scheme/bin/*"/>
+    </copy>
+    <copy file="scheme/README.TXT" todir="${scheme.dir}"/>
+    <copy file="scheme/LICENSE.TXT" todir="${scheme.dir}"/>
+
+    <property name="sleep.dir" value="${dist.dir}/sleep"/>
+    <mkdir dir="${sleep.dir}/build"/>
+    <mkdir dir="${sleep.dir}/lib"/>
+    <mkdir dir="${sleep.dir}/bin"/>
+    <copy todir="${sleep.dir}/build">
+      <fileset file="sleep/build/*.jar"/>
+    </copy>
+    <copy todir="${sleep.dir}/bin">
+      <fileset file="sleep/bin/*"/>
+    </copy>
+    <copy file="sleep/README.TXT" todir="${sleep.dir}"/>
+    <copy file="sleep/LICENSE.TXT" todir="${sleep.dir}"/>
+
+    <property name="xpath.dir" value="${dist.dir}/xpath"/>
+    <mkdir dir="${xpath.dir}/build"/>
+    <mkdir dir="${xpath.dir}/lib"/>
+    <mkdir dir="${xpath.dir}/bin"/>
+    <copy todir="${xpath.dir}/build">
+      <fileset file="xpath/build/*.jar"/>
+    </copy>
+    <copy todir="${xpath.dir}/bin">
+      <fileset file="xpath/bin/*"/>
+    </copy>
+    <copy file="xpath/README.TXT" todir="${xpath.dir}"/>
+    <copy file="xpath/LICENSE.TXT" todir="${xpath.dir}"/>
+
+    <property name="xslt.dir" value="${dist.dir}/xslt"/>
+    <mkdir dir="${xslt.dir}/build"/>
+    <mkdir dir="${xslt.dir}/lib"/>
+    <mkdir dir="${xslt.dir}/bin"/>
+    <copy todir="${xslt.dir}/build">
+      <fileset file="xslt/build/*.jar"/>
+    </copy>
+    <copy todir="${xslt.dir}/bin">
+      <fileset file="xslt/bin/*"/>
+    </copy>
+    <copy file="xslt/README.TXT" todir="${xslt.dir}"/>
+    <copy file="xslt/LICENSE.TXT" todir="${xslt.dir}"/>
+
+    <!-- make tar.gz -->
+    <tar destfile="${dist.dir}.tar.gz" basedir="${dist.dir}"
+         compression="gzip"/>
+
+    <!-- make zip -->
+    <zip destfile="${dist.dir}.zip" basedir="${dist.dir}"/>
+
   </target>
 
 </project>
