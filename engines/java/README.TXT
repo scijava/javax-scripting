@@ -9,6 +9,9 @@ Java classes.
 There are 5 pre-defined variables that can be set in the ScriptContext
 before calling ScriptEngine.eval() or ScriptEngine.compile() method.
 
+When using this engine with your Java program, you need to put tools.jar
+under $JAVA_HOME/lib in your CLASSPATH.
+
 1) sourcepath
 
 -- path for additional .java source files that may be required for 
