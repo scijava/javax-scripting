@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : settings.xml
+    Created on : May 30, 2006, 9:04 AM
+    Author     : projects
+    Description:
+        Purpose of the document follows.
+-->
+
+<!DOCTYPE settings PUBLIC "-//NetBeans//DTD Session settings 1.0//EN" "http://www.netbeans.org/dtds/sessionsettings-1_0.dtd">
+<settings>
+    <module name="org.chuk.lee.scriptengine" spec="1.0"/>
+    <instanceof class="org.openide.options.SystemOption"/>
+    <instanceof class="org.chuk.lee.scriptengine.PersistentStorage"/>
+    <instance class="org.chuk.lee.scriptengine.PersistentStorage"/>
+</settings>

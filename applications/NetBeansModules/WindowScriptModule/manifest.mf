@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.chuk.lee.windowscriptmodule/1
+OpenIDE-Module-Implementation-Version: 1
+OpenIDE-Module-Layer: org/chuk/lee/windowscriptmodule/layer.xml
+OpenIDE-Module-Localizing-Bundle: org/chuk/lee/windowscriptmodule/Bundle.properties
+OpenIDE-Module-Public-Packages: org.chuk.lee.windowscriptmodule.api.*
+

@@ -1,0 +1,87 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+
+  <meta content="text/html;charset=ISO-8859-1" http-equiv="Content-Type">
+  <title>Using ScriptEngine</title>
+
+
+</head>
+<body>
+
+<h2>Using ScriptEngine</h2>
+
+<h3>Configuring</h3>
+
+So
+once you have installed the modules, go to Tools -&gt; Options
+-&gt;
+Miscellaneous -&gt; Scripts and set the 'Script repository' field
+to
+the script directory that you've expanded. The script engine module
+will look for 2
+directory in its script repository directroy. <br>
+
+<ol>
+
+  <li>actions
+- all scripts that are saved here will appear in Tools -&gt;
+Scripts.
+If you have added new script to this directroy do a Tools -&gt;
+Scripts
+-&gt; Reload. Currently the engine does not go recursively into the
+directory. <br>
+
+  </li>
+
+  <li>load - all scripts that are saved here will be loaded when
+NetBeans starts up. This allows you to register events, etc.</li>
+  <li>console - initialization scripts for script consoles. See <a href="console.html">Script Console</a> for more information.</li>
+
+</ol>
+
+When
+you configure the script repository path, there is a check box that
+says 'Initialize script repository'. This creates the actions and load
+directory in you script repository. If you are starting a new
+repository, check this.<br>
+
+<br>
+<a name="add_engines"></a>
+You can also add additional <a href="http://www.jcp.org/en/jsr/detail?id=223">JSR-223</a>compliant
+scripting engines. Click on the 'Add' button under the 'Installed
+script engines' table. A dialog box will pop up. Enter the full path of
+the script engine JARS, one classpath per line into the text area.
+Alternatively, you can also use the Browse button. Click OK when you
+are done. You should now see the newly added script engines in the
+'Installed script engines' table. ECMAScript (or JavaScript) engine
+will always be available.<br>
+<h3>Moving Around</h3>
+The ScriptEngine installs a menu item call Scripts in NetBeans main toolbar.<br>
+<img style="border: 1px solid ; width: 246px; height: 126px;" alt="" src="images/script_menu.png"><br>
+The Scripts menu contains the following submenus:<br>
+<ul>
+  <li>Scripts - list of all the scripts and its subdirectory under the action directory in your script repository</li>
+  <li>Script Console - list of all the script console you are able to
+open. You can only open consoles to scripts that are recognized by
+ScriptEngine. To all JSR-223 compliant engines see <a href="#add_engines">here</a>. The console will open at the 'output' area in NetBeans. See <a href="console.html">Script Console</a> for more information.</li>
+  <li>Script Environment - Opens a window on the 'explorer' area in
+NetBeans which provides a visual representation of the entire
+ScriptEngines's environment.</li>
+</ul>
+<div style="margin-left: 40px;"><img style="border: 1px solid ; width: 282px; height: 294px;" alt="" src="images/script_environment.png"><br>
+As you can see, besides showing the three main directory under script
+repository, the Script Environment window also shows what are the
+language engine and script modules that are installed into the
+environment. You execute a particular script by right clicking on it.
+Script consoles can also be opened in the following manner. Right click
+on a particular language under 'Script languages' node and select 'Open
+Console'.</div>
+<br>
+<br>
+<br>
+
+<br>
+
+</body>
+</html>

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="Actions">
+        <folder name="Tools">
+            <file name="org-chuk-lee-scriptengine-ScriptAction.instance"/>
+            <file name="org-chuk-lee-scriptengine-console-OpenConsoleAction.instance"/>
+        </folder>
+        <folder name="Window">
+            <file name="org-chuk-lee-scriptengine-environment-ScriptEnvironmentAction.instance"/>
+        </folder>
+    </folder>
+    <folder name="Menu">
+        <attr name="Window/Scripts" boolvalue="true"/>
+        <folder name="Scripts">
+            <file name="org-chuk-lee-scriptengine-ScriptAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Tools/org-chuk-lee-scriptengine-ScriptAction.instance"/>
+            </file>
+            <attr name="org-chuk-lee-scriptengine-ScriptAction.shadow/org-chuk-lee-scriptengine-console-OpenConsoleAction.shadow" boolvalue="true"/>
+            <file name="org-chuk-lee-scriptengine-console-OpenConsoleAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Tools/org-chuk-lee-scriptengine-console-OpenConsoleAction.instance"/>
+            </file>
+            <attr name="org-chuk-lee-scriptengine-console-OpenConsoleAction.shadow/ScriptEnvironmentAction.shadow" boolvalue="true"/>            
+            <file name="ScriptEnvironmentAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Window/org-chuk-lee-scriptengine-environment-ScriptEnvironmentAction.instance"/>
+            </file>
+        </folder>
+        <attr name="Scripts/Help" boolvalue="true"/>
+<!--        
+        <folder name="Window">
+            <file name="ScriptEnvironmentAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Window/org-chuk-lee-scriptengine-environment-ScriptEnvironmentAction.instance"/>
+            </file>
+        </folder>
+-->        
+    </folder>
+    <folder name="OptionsDialog">
+        <folder name="Advanced">
+            <file name="org-chuk-lee-scriptengine-ScriptEngineAdvancedOption.instance"/>
+        </folder>
+    </folder>
+    <folder name="Services">
+        <folder name="JavaHelp">
+            <file name="scriptengine-helpset.xml" url="scriptengine-helpset.xml"/>
+        </folder>
+        <file name="org-chuk-lee-scriptengine-ConfigurationValues.settings" url="ConfigurationValues.xml"/>
+        <file name="org-chuk-lee-scriptengine-PersistentStorage.settings" url="PersistentStorage.xml"/>
+    </folder>
+<!--    
+    <folder name="Toolbars">
+        <folder name="Scripts">
+            <file name="org-chuk-lee-scriptengine-console-OpenConsoleAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Tools/org-chuk-lee-scriptengine-console-OpenConsoleAction.instance"/>
+            </file>            
+        </folder>
+    </folder>
+-->    
+    <folder name="Windows2">
+        <folder name="Components">
+            <file name="ScriptEnvironmentTopComponent.settings" url="ScriptEnvironmentTopComponentSettings.xml"/>
+        </folder>
+        <folder name="Modes">
+            <folder name="explorer">
+                <file name="ScriptEnvironmentTopComponent.wstcref" url="ScriptEnvironmentTopComponentWstcref.xml"/>
+            </folder>
+        </folder>
+    </folder>
+</filesystem>

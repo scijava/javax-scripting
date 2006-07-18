@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.chuk.lee.scriptengine/1
+OpenIDE-Module-Implementation-Version: 2
+OpenIDE-Module-Install: org/chuk/lee/scriptengine/Installer.class
+OpenIDE-Module-Layer: org/chuk/lee/scriptengine/layer.xml
+OpenIDE-Module-Localizing-Bundle: org/chuk/lee/scriptengine/Bundle.properties
+OpenIDE-Module-Requires: org.netbeans.api.javahelp.Help
+OpenIDE-Module-Public-Packages: org.chuk.lee.scriptengine.api.*
+
+

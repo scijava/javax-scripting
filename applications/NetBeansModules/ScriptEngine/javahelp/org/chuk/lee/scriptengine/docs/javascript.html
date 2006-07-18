@@ -1,0 +1,446 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+</head>
+
+
+<body>
+
+
+<h2>Scripting Java with JavaScript</h2>
+
+
+<br>
+
+
+Mustang comes with out-of-the box support for JavaScript. The following
+is a quick and dirty tutorial on how to script Java in the JavaScript.
+Note this is specific to the JavaScript engine in Mustang.<br>
+<br>
+
+
+Open a JavaScript console. Try a few of the commands a
+shown below:
+<ul>
+
+
+  
+
+</ul>
+
+
+<div style="margin-left: 40px; color: rgb(51, 204, 0);"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">js&gt;
+date<br>
+
+
+sun.org.mozilla.javascript.internal.InterpretedFunction@aa9835<br>
+
+
+js&gt; date()<br>
+
+
+March 14, 2006 5:39:09 PM SGT<br>
+
+
+js&gt; ls()<br>
+
+
+-rw Mar 10&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 12 test.txt<br>
+
+
+js&gt; cat("test.txt")<br>
+
+
+hello world</span></div>
+
+
+<br>
+Creating a Java object. We will now create a <a href="http://download.java.net/jdk6/docs/api/java/io/File.html" target="_blank">java.io.File</a>
+object. Type in the following:
+<ul>
+
+
+  
+
+</ul>
+
+
+<div style="margin-left: 40px; color: rgb(51, 204, 0);"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">js&gt;
+var file = new File("test.txt") </span><br style="font-weight: bold; font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-weight: bold; font-family: Courier New,Courier,monospace;">js&gt;</span></div>
+
+
+<br>
+You can access static and non-static members (if any) from
+the
+object itself. Type in the following:
+<ul>
+
+
+  
+
+</ul>
+
+
+<div style="margin-left: 40px; color: rgb(51, 204, 0);"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">js&gt;
+File.separator<br>
+
+
+/<br>
+
+
+js&gt; print(File.pathSeparatorChar)<br>
+
+
+58</span></div>
+
+
+<br>
+We can also access all public method from a Java object.
+Try the
+following and also any other methods in File
+class.
+<ul>
+
+
+  
+
+</ul>
+
+
+<div style="margin-left: 40px; color: rgb(51, 204, 0);"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">js&gt;
+file.getName()<br>
+
+
+test.txt<br>
+
+
+js&gt; file.canRead()<br>
+
+
+true<br>
+
+
+js&gt; file.getAbsolutePath()<br>
+
+
+/home/projects/mustangfeatures/exercises/ex2/interactive_shell/test.txt</span></div>
+
+
+<br>
+JavaBean properties can be access by dropping the the
+'get' or 'is' from the method name. For example, <a href="http://download.java.net/jdk6/docs/api/java/io/File.html#getAbsoluteFile%28%29" target="_blank">getAbsolutePath()</a>
+will
+become absolutePath and <a href="http://download.java.net/jdk6/docs/api/java/io/File.html#isDirectory%28%29" target="_blank">isDirectory()</a> becomes
+directory.&nbsp;Try the
+following and also any other methods in File
+class.
+<ul>
+
+
+  
+
+</ul>
+
+
+<div style="margin-left: 40px; color: rgb(51, 204, 0);"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">js&gt;
+file.directory<br>
+
+
+false<br>
+
+
+js&gt; print(file.absolutePath)<br>
+
+
+/home/projects/mustangfeatures/exercises/ex2/interactive_shell/test.txt</span></div>
+
+
+<br>
+You can examine a method's singnature and overloads by
+entering
+the name of the method. In the following example, we enter&nbsp;listFiles
+to list out all the overloaded listFiles
+methods:
+<ul>
+
+
+  
+
+</ul>
+
+
+<div style="margin-left: 40px; color: rgb(51, 204, 0);"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">js&gt;
+file.listFiles<br>
+
+
+java.io.File[] listFiles()<br>
+
+
+java.io.File[] listFiles(java.io.FilenameFilter)<br>
+
+
+java.io.File[] listFiles(java.io.FileFilter)<br>
+
+
+<br>
+
+
+js&gt;</span></div>
+
+
+In the example shown
+above, listFiles
+method has three overloaded methods. The definition of these methods,
+along with their formal parameters and return type, are shown.
+
+<br>
+<br>
+Another useful feature is the ability to print out all
+methods
+from a Java object using the for loop. In JavaScript we will use the
+for/in loop.&nbsp;Type in the following:
+<ul>
+
+
+  
+
+</ul>
+
+
+<div style="margin-left: 40px; color: rgb(51, 204, 0);"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">js&gt;
+for (method in file) { print(method); }<br>
+
+
+exists<br>
+
+
+usableSpace<br>
+
+
+parentFile<br>
+
+
+mkdir<br>
+
+
+totalSpace<br>
+
+
+setExecutable<br>
+
+
+toString<br>
+
+
+canExecute<br>
+
+
+wait<br>
+
+
+setReadable<br>
+
+
+setReadOnly<br>
+
+
+getCanonicalPath<br>
+
+
+getClass<br>
+
+
+canonicalPath<br>
+
+
+...</span></div>
+
+
+<br>
+Create a <a href="http://download.java.net/jdk6/docs/api/javax/swing/JFrame.html">JFrame
+    </a>object from the javax.swing package as shown:
+<ul>
+
+
+  
+
+</ul>
+
+
+<div style="margin-left: 40px; color: rgb(51, 204, 0);"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">js&gt;
+var frame = new JFrame("my frame")<br>
+
+
+script error: sun.org.mozilla.javascript.internal.EcmaError:
+ReferenceError: "JFrame" is not defined. (&lt;STDIN&gt;#1) in
+&lt;STDIN&gt; at line number 1<br>
+
+
+js&gt;&nbsp;</span></div>
+
+
+We have to import the
+javax.swing
+package before using. However, importing packages in JavaScript (or
+Rhino) is slightly different from Java. To import any package, you need
+to preceed the package's name with the JavaScript variable
+call&nbsp;Packages.
+Rhino also provides a JavaScript funtion call importPackage().
+So if we wish to import javax.swing,
+we would have to type the following:<br>
+<div style="margin-left: 40px;">
+
+<br>
+
+
+<span style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">js&gt;
+importPackage(Packages.javax.swing)<br>
+
+
+js&gt; var frame = new JFrame("my frame")<br>
+
+
+js&gt; var button = new JButton("Press me") <br>
+
+
+js&gt; var panel = new JPanel();<br>
+
+
+js&gt; panel.add(button);<br>
+
+
+javax.swing.JButton[,0,0,0x0,invalid,ali...,defaultCapable=true]<br>
+
+
+js&gt; frame.add(panel, "North")<br>
+
+
+js&gt; frame.pack() <br>
+
+
+js&gt; frame.setVisible(true)</span></div>
+
+
+<div style="margin-left: 40px;"><br>
+</div>
+The
+default imported Java packages are java.io
+and
+java.net. java.lang
+is <span style="font-weight: bold;">not
+imported</span> by default.
+
+<br>
+<br>
+Many of the Java APIs and functionalities like event listeners
+work with interfaces and threads. We can implement
+Java interfaces using JavaScript. To implement a Java interface, we do
+the following:<br>
+
+
+<ul>
+
+
+  <li>Define a Java script object with function and properties
+whose
+name matchs the methods of the Java interface that we are implementing.
+The Java script object takes the following form {propertyName: value}.</li>
+
+
+  <li>Create an object of the Java interface. Pass the JavaScript
+object that we have created in the constructor<br>
+
+
+  </li>
+
+
+</ul>
+
+
+Here is an example of creating a
+thread. Type in the following:<br>
+
+<div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">js&gt;
+importPackage(Packages.java.lang)</span><br>
+
+<span style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">
+js&gt; var runit = { run: function() { print("Running... "); } }</span><br>
+
+<span style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">
+js&gt; var run = Runnable(runit)</span><br>
+
+<span style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">
+js&gt; var thread = new Thread(run)</span><br>
+
+<span style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">
+js&gt; thread.start();</span><br>
+
+<span style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">
+js&gt; Running...</span><br>
+
+<span style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);"></span></div>
+
+<br>
+
+The JavaScript environment that comes with Mustang comes with two
+additional JavaScript objects. They are jlist
+and jmap.
+These are convenience holder objects for <a href="http://download.java.net/jdk6/docs/api/java/util/List.html" target="_blank">java.util.List</a>
+and <a href="http://download.java.net/jdk6/docs/api/java/util/Map.html" target="_blank">java.util.Map</a>.
+&nbsp;Below are examples of how you would use them.&nbsp;Type in the
+following:<br>
+
+<br>
+
+<div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">js&gt;
+var props = jmap(System.properties);</span><br style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">
+
+<span style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">js&gt;
+print(prop["java.class.path"])</span><br>
+
+<span style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">
+/opt/java/javase/jdk1.6.0/lib/tools.jar:/opt/java/javase/jdk1.6.0/classes</span><br>
+
+<span style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">
+js&gt; var arrayList = new ArrayList(3)</span><br>
+
+<span style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">
+js&gt; arrayList.add("Java")</span><br>
+
+<span style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">
+true</span><br>
+
+<span style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">
+js&gt; arrayList.add("JavaList")</span><br>
+
+<span style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">
+true</span><br>
+
+<span style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">
+js&gt; arrayList.add("SQL")</span><br>
+
+<span style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">
+true</span><br>
+
+<span style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">
+js&gt; var list = jlist(arrayList)</span><br>
+
+<span style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">
+js&gt; print(list[0])</span><br>
+
+<span style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">
+Java</span><br>
+
+<span style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">
+js&gt; print("length = " + list.length)</span><br>
+
+<span style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">
+3</span></div>
+
+
+      
+</body>
+</html>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE map PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp Map Version 1.0//EN" "http://java.sun.com/products/javahelp/map_1_0.dtd">
+<map version="1.0">
+  <mapID target="programmable-objects_html" url="programmable-objects.html"/>
+  <mapID target="org.chuk.lee.scriptengine.about" url="scriptengine-about.html"/>
+  <mapID target="scriptengine-using_html" url="scriptengine-using.html"/>
+  <mapID target="javascript_html" url="javascript.html"/>
+  <mapID target="console_html" url="console.html"/>
+  <mapID target="script-module_html" url="script-module.html"/>
+</map>

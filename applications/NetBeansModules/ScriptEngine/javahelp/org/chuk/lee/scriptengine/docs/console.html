@@ -1,0 +1,54 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+</head>
+<body>
+<h2>Script Console</h2>
+<br>
+Script consoles opens a console to a particular scripting engine. The console looks like below:<br>
+<img style="border: 1px solid ; width: 651px; height: 178px;" alt="" src="images/script_console.png"><br>
+<br>
+A console can be identified by its prompt. The prompt is the official
+suffix recognized by a particular script engine. In the console shown
+above, 'js' indicates that this is a JavaScript engine. The button on
+the right of the button has the following function:<br>
+<ul>
+  <li><img style="width: 16px; height: 16px;" alt="" src="images/execute.gif" align="middle">
+Log button. Click on this button, an you will be prompted to enter a
+log file name. After you have entered a valid log file, all subsequent
+output and results in that console will be logged into that file. The
+log button is a toggle button. Click on the log button to stop logging.
+You can also programmatically turn logging on or off. See <a href="programmable-objects.html">Programmable Objects</a>.</li>
+  <li><img style="width: 16px; height: 16px;" alt="" src="images/clean.gif" align="middle"> Clear button. Clears the console.</li>
+</ul>
+All console environment contained and will not interfere with other opened console. <br>
+<br>
+You can initialize a console by creating a file call
+globals.&lt;suffix&gt; in script_repository_home/console directory. The
+&lt;suffix&gt; is the suffix that is officially recognized by a
+particular script engine. To find out what suffix an engine supports
+here is what you need to do:<br>
+<ol>
+  <li>Open NetBeans' property window (Windows -&gt; Properties).&nbsp;</li>
+  <li>Open the Scripting Environment window (Scripts -&gt; Scripting Environment).&nbsp;</li>
+  <li>Expand the 'Script Languages' node, and select the engine that you want to find the suffix of.&nbsp;</li>
+  <li>Look at the Suffix property in the Properties window. Some
+engines support more that on suffix. In this case, all the suffix will
+be separated by a space.</li>
+</ol>
+You can put any script command into globals.&lt;suffix&gt;. The
+globals.&lt;suffix&gt; file will be execute before the script console
+is displayed. Think of the globals.&lt;suffix&gt; file as the .profile
+for Bourne shell.<br>
+<h3>JavaScript Console</h3>
+JavaScript console is the best supported console. When you open a JavaScript console, the following are provided:<br>
+<ul>
+  <li><a href="http://java.sun.com/javase/6/docs/technotes/tools/share/jsdocs/index.html">init.js</a> from <a href="http://java.sun.com/javase/6/docs/technotes/tools/share/jrunscript.html">jrunscript</a></li>
+  <li>A list of redefined JavaScript command. Type 'help()' in the
+console to get a list of predefined command besides those from init.js</li>
+</ul>
+<h3>Console Object</h3>
+All open console has an object call 'Console' which can be used by scripts to control the console instance. See <a href="programmable-objects.html">Programmable Objects</a> for more information.<br>
+<br>
+</body>
+</html>

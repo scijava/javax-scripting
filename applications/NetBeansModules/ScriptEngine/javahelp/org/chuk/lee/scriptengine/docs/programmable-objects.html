@@ -1,0 +1,172 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+</head>
+
+
+<body>
+
+<h2>Programmable Objects</h2>
+
+<br>
+
+All scripts executed by ScriptEngine are endowed with the following two predefinded objects<br>
+
+<ul>
+
+  <li>NetBeans - this object gives the script access to the NetBeans IDE</li>
+
+  <li>Console - this object is only present if a script is executed in the script console</li>
+
+</ul>
+
+All objects, call script modules, have methods and events (optional) that are exposed to scripts. <br>
+
+<h3>Handling Events</h3>
+
+Each script module can expose a set of events to the script. However
+event support are optional. To determine whether a script module
+supports events, either read the module's documentation or look at its
+event properties in NetBeans's property window. See <a href="scriptengine-using.html">script environment</a>.
+All events have name. Again, you can get the event names either from
+the module's documentation or the script environment window property. <br>
+
+<br>
+
+Script module that supports events will have a method call
+register(event_name, callback) which allows you to register a paricular
+callback to an event name. Here is how you register for an event:<br>
+
+<ol>
+
+  <li>Implement the ModuleEventListener interface in
+org.chuk.lee.scriptengine.api package. This is your event callback. The
+interface has exactly one method call invoke(). Check your scripting
+engine on how to implement Java interfaces.</li>
+
+  <li>Invoke register() method with this interface with the name of the event.</li>
+
+</ol>
+
+Below is an example of registring for listening to startup in JavaScript<br>
+
+<br>
+
+<span style="font-family: Courier New,Courier,monospace; font-weight: bold; color: rgb(51, 204, 0);">//Assume fortunes() is defined</span><br style="font-family: Courier New,Courier,monospace; font-weight: bold; color: rgb(51, 204, 0);">
+
+<span style="font-family: Courier New,Courier,monospace; font-weight: bold; color: rgb(51, 204, 0);">var _cookie = { invoke : function() { fortunes() }};</span><br style="font-family: Courier New,Courier,monospace; font-weight: bold; color: rgb(51, 204, 0);">
+
+<span style="font-family: Courier New,Courier,monospace; font-weight: bold; color: rgb(51, 204, 0);">//Register to listen for an event. Currently NetBeans object exports 2 events:</span><br style="font-family: Courier New,Courier,monospace; font-weight: bold; color: rgb(51, 204, 0);">
+
+<span style="font-family: Courier New,Courier,monospace; font-weight: bold; color: rgb(51, 204, 0);">//1. NetBeans.startup - called when NetBeans starts up</span><br style="font-family: Courier New,Courier,monospace; font-weight: bold; color: rgb(51, 204, 0);">
+
+<span style="font-family: Courier New,Courier,monospace; font-weight: bold; color: rgb(51, 204, 0);">//2. NetBeans.shutdown - called when NetBeans </span><br style="font-family: Courier New,Courier,monospace; font-weight: bold; color: rgb(51, 204, 0);">
+
+<span style="font-family: Courier New,Courier,monospace; font-weight: bold; color: rgb(51, 204, 0);">//ModuleEventListener is a Java interface in org.chuk.lee.scriptengine.api</span><br style="font-family: Courier New,Courier,monospace; font-weight: bold; color: rgb(51, 204, 0);">
+
+<span style="font-family: Courier New,Courier,monospace; font-weight: bold; color: rgb(51, 204, 0);">//package. Has exactly 1 method with the following sig:</span><br style="font-family: Courier New,Courier,monospace; font-weight: bold; color: rgb(51, 204, 0);">
+
+<span style="font-family: Courier New,Courier,monospace; font-weight: bold; color: rgb(51, 204, 0);">//&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; public void invoke();</span><br style="font-family: Courier New,Courier,monospace; font-weight: bold; color: rgb(51, 204, 0);">
+
+<span style="font-family: Courier New,Courier,monospace; font-weight: bold; color: rgb(51, 204, 0);">NetBeans.register("NetBeans.startup", ModuleEventListener(_cookie));</span><br>
+
+<br>
+
+Events can be dynamically registered viz. register when you are running
+a script, or registered automatically when NetBeans starts up. To allow
+NetBeans to register automatically, you will have to create your
+scripts in load directory under the script repository directory.<br>
+
+<br>
+
+When you register an event, register will return a EventReference
+object. EventReference object is a handle to your registered event.
+Here are the methods in EventReference<br>
+
+<ol>
+
+  <li>getEventName() - returns the name of the event that you have registered</li>
+
+  <li>cancel() - cancel the event</li>
+
+  <li>getEventObject() - currently not used</li>
+
+  <li>setEventObject() - currently not used</li>
+
+</ol>
+
+<h3>NetBeans Script Module</h3>
+
+List of methods supported by NetBeans object<br>
+
+<ol>
+
+  <li>findByName(module_name) - find and load a module by its name.
+Will return an instance of the module. The module will be initialized
+before returning to the caller</li>
+
+  <li>findByClass(fully_qualified_class_name) - as above but locates a module name by its implementation class</li>
+
+  <li>setStatusText(msg) - displays the message in NetBean's status line viz. lower left hand corner</li>
+
+  <li>informationDialog(msg, title) - displays an information dialog box</li>
+
+  <li>warningDialog(msg, title) - displays a warning dialog box</li>
+
+  <li>errorDialog(msg, title) - displays an error dialog box</li>
+
+  <li>showConfirmationDialog(msg, title) - displays the message and request the user to confirm. Will return <a href="file:///opt/java/javase/jdk1.6-docs/api/javax/swing/JOptionPane.html">JOptionPane</a>.<a href="file:///opt/java/javase/jdk1.6-docs/api/javax/swing/JOptionPane.html#OK_OPTION">OK_OPTION</a> or <a href="file:///opt/java/javase/jdk1.6-docs/api/javax/swing/JOptionPane.html#CANCEL_OPTION">CANCEL_OPTION</a></li>
+
+  <li>showInputLine(msg) - solicit an input from the user. Will return type string entered</li>
+
+  <li>putSessionData(key, object) - Store some data in the session
+data. Analogous to HttpSession object. Does not presist over multiple
+NetBeans session viz. start/exit.</li>
+
+  <li>getSessionData(key) - retrieves a piece of session data based on the key</li>
+
+  <li>putApplicationData(key, object) - stores a piece of data in
+persistent storage. Data will be persisted over multiple session. Set
+null to clear data.</li>
+
+  <li>getApplicatoinData(key) - retrieves a piece of data from the presistent store</li>
+
+  <li>execute(cmd, args) - execute an external program. cmd is the full path name of the command and args are arguments to cmd</li>
+
+  <li>execute(cmd) - execute a command without arguments</li>
+
+  <li>showURL(url) - display a URL using NetBeans default configured browser</li>
+
+</ol>
+
+List of events supported by NetBeans object<br>
+
+<ol>
+
+  <li>NetBeans.startup - fires when NetBeans starts up</li>
+
+  <li>NetBeans.shutdown - fires when a user exits from NetBeans</li>
+
+</ol>
+
+<h3>Console Script Module</h3>
+
+List of methods supported by Console object<br>
+
+<ol>
+
+  <li>print(msg) - prints to the console. This method is optional. All output from a script will be directed to the console</li>
+
+  <li>flash() - flashes the console window&nbsp;</li>
+
+  <li>startLog() - request for a log file name and starts logging from this point onward</li>
+
+  <li>startLog(filename) - logs all output to the specified filename from this point onward</li>
+
+  <li>stopLog() - stops logging</li>
+
+</ol>
+
+Console object do not support any events
+</body>
+</html>

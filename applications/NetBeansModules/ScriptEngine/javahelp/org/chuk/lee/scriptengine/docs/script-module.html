@@ -1,0 +1,233 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+
+</head>
+
+
+<body>
+
+<h2>Developing Script Modules</h2>
+
+ScriptModules are dynamic functions that can be added into
+ScriptEngine. The ScriptEngine provides two modules: these are NetBeans
+and Console module.&nbsp;To create a script module, here is what
+you
+need to do:<br>
+
+<ol>
+
+  <li>Create a new project NetBeans, selecting NetBeans Plug-in
+Module -&gt; Module Project</li>
+
+  <li>Create a dependency from your project to the library that
+contains AbstractScriptModule. See the many excellent <a href="http://platform.netbeans.org/tutorials/index.html">tutorial</a>
+in NetBeans.org site on how to do this.</li>
+
+  <li>Create your module class extending AbstractScriptModule
+from
+org.chuk.lee.scriptengine.api package. You only have to implement one
+method which is the getName() method. The getName() method returns the
+name of your module. When a users calls findByName(), this will be name
+that will be refered to. An instance of this class will be returned by
+findByName() ane findByClass() method.</li>
+
+  <li>You module must have a default constructor.</li>
+
+  <li>You can now add methods to your module.</li>
+
+  <li>If your module requires initialization, override the
+initialize() method. The method has the following signature</li>
+
+</ol>
+
+<div style="margin-left: 40px;">
+<div style="margin-left: 40px;">public void
+initialize(ScriptEngine eng)<br>
+
+</div>
+
+<br>
+
+An instance of the script engine will be passed to your module. This is
+also the script engine that will subsequently be used for executing the
+calling script. Some of the things you can perform in initialize()
+methods may include any or all of the following<br>
+
+<ul>
+
+  <li>Initialize the scripting environment with utility functions</li>
+
+  <li>Opening a connection to a server resource like database,
+chat room, etc</li>
+
+  <li>Exporting additional objects into the scripting environment</li>
+
+</ul>
+
+</div>
+
+<ol start="7">
+
+  <li>If your script module supports events, override the list()
+method and return a String array of &nbsp;of event names. Event
+names has the following naming convention:
+script_module_name.event_name; for example the NetBeans script module
+exports two events called "NetBeans.startup" and "NetBeans.shutdown".
+The naming convention is to prevent event name clashes.</li>
+
+  <li>When your script module wants to fire and event, there are
+two ways of &nbsp;doing this:</li>
+
+</ol>
+
+<div style="margin-left: 40px;">
+<ul>
+
+  <li>fireEvent(event_name) - calling this method will fire
+event_name to all registered listeners asynchronously viz a separate
+thread will be created to fire the event. The method will return
+immediately</li>
+
+  <li>fireEventSync(event_name) - this method will fire
+event_name synchronously. The method will be blocked until all
+listeners are notified.</li>
+
+</ul>
+
+</div>
+<ol start="9">
+  <li>Create a file call org.chuk.lee.scriptengine.api.ScriptModule
+under META-INF/services. The contents of the file should the fully
+qualified class name of the class that implemented the
+AbstractScriptModule class. This is the service provider interface. The
+ScriptEngine will load all ScriptModule using this mechanism. See <a href="http://java.sun.com/j2se/1.5.0/docs/guide/sound/programmer_guide/chapter13.html">here</a> for more information on service providers.</li>
+  <li>Finally, compile and generate the NBM. Install the NBM and
+verified that the ScriptEngine has recognized your module be opening
+the Scripting Environment window; look for the name of your script
+module under Script Module node.</li>
+</ol>
+Here &nbsp;is an abridged example of the NetBeans script module:<br>
+
+<br>
+
+<span style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">public
+class NetBeansIDE extends AbstractScriptModule {</span><br style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">
+
+<span style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">&nbsp;&nbsp;&nbsp;
+</span><br style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">
+
+<span style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">&nbsp;&nbsp;&nbsp;
+public static final String MODULE_NAME = "NetBeans";</span><br style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">
+
+<span style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">&nbsp;&nbsp;&nbsp;
+public static final String STARTUP_EVENT = "NetBeans.startup";</span><br style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">
+
+<span style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">&nbsp;&nbsp;&nbsp;
+public static final String SHUTDOWN_EVENT = "NetBeans.shutdown";</span><br style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">
+
+<span style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">&nbsp;&nbsp;&nbsp;
+public static final String[] EVENT_NAMES = { STARTUP_EVENT,
+SHUTDOWN_EVENT };</span><br style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">
+
+<span style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">&nbsp;&nbsp;&nbsp;
+</span><br style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">
+
+<span style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">&nbsp;&nbsp;&nbsp;
+private NetBeansIDE ide = null;</span><br style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">
+
+<span style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">&nbsp;&nbsp;&nbsp;
+private ScriptEngine engine;</span><br style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">
+
+<span style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">&nbsp;&nbsp;&nbsp;
+</span><br style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">
+
+<span style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">&nbsp;&nbsp;&nbsp;
+/* ScriptModule must have a default constructor */</span><br style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">
+
+<span style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">&nbsp;&nbsp;&nbsp;
+public NetBeansIDE() { }</span><br style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">
+
+<span style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">&nbsp;&nbsp;&nbsp;
+</span><br style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">
+
+<span style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">&nbsp;&nbsp;&nbsp;
+/*</span><br style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">
+
+<span style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">&nbsp;&nbsp;&nbsp;&nbsp;
+* Functionalities provided by this module</span><br style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">
+
+<span style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">&nbsp;&nbsp;&nbsp;&nbsp;
+*/</span><br style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">
+
+<span style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">&nbsp;&nbsp;&nbsp;
+public ScriptModule findByName(String c) {</span><br style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">
+
+<span style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; ....</span><br style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">
+
+<span style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">&nbsp;
+&nbsp; }</span><br style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">
+
+<span style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">&nbsp;&nbsp;&nbsp;
+...<br>
+
+&nbsp;&nbsp;&nbsp; /*<br>
+
+&nbsp;&nbsp;&nbsp; &nbsp;* List of event names if the
+module supports events<br>
+
+&nbsp;&nbsp;&nbsp; &nbsp;*/<br style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">
+
+</span><span style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">&nbsp;&nbsp;&nbsp;
+public String[] list() {</span><br style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">
+
+<span style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+return (EVENT_NAMES);</span><br style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">
+
+<span style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">&nbsp;&nbsp;&nbsp;
+}<br>
+
+&nbsp;&nbsp;&nbsp; /*<br>
+
+&nbsp;&nbsp;&nbsp; &nbsp;* Returns the module name<br>
+
+&nbsp;&nbsp;&nbsp; &nbsp;*/<br style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">
+
+</span><span style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">&nbsp;&nbsp;&nbsp;
+public String getName()
+{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span><br style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">
+
+<span style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+return (MODULE_NAME);</span><br style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">
+
+<span style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">&nbsp;&nbsp;&nbsp;
+}&nbsp;&nbsp;&nbsp; <br>
+
+&nbsp;&nbsp;&nbsp; /*<br>
+
+&nbsp;&nbsp;&nbsp; &nbsp;* Override the initalize
+method if your module requires initialization<br>
+
+&nbsp;&nbsp;&nbsp; &nbsp;*/<br style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">
+
+</span><span style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">&nbsp;&nbsp;&nbsp;
+public void initalize(ScriptEngine e) {</span><br style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">
+
+<span style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+engine = e;</span><br style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">
+
+<span style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Bindings bin = engine.getBindings(ScriptContext.ENGINE_SCOPE);</span><br style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">
+
+<span style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+bin.put(MODULE_NAME, this);</span><br style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">
+
+<span style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+engine.setBindings(bin, ScriptContext.ENGINE_SCOPE);</span><br style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">
+
+<span style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(51, 204, 0);">&nbsp;&nbsp;&nbsp;
+}</span>
+</body>
+</html>

@@ -1,0 +1,102 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+
+  
+
+
+  
+  <title>About ScriptEngine</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+</head>
+
+
+<body>
+
+
+<h2>About ScriptEngine</h2>
+
+
+Scripting languages are popular (probably an
+understatement). JavaSE 6 (aka Mustang) will have first-class support
+for scripting languages. There is already a project at <a href="https://scripting.dev.java.net/" target="_blank">scripting.dev.java.net</a>
+that have quite a few scripting engines for Mustang. <br>
+
+
+<p>NetBeans
+is a top notch IDE. However to extend NetBeans, you have to resort to
+writing modules. People may what to invest time and energy into a hack
+and slash project like my recent FIFA World Cup module (Go England!
+Latest - England went.).
+NetBeans current has a project call <a href="https://coyote.dev.java.net/" target="_blank">Coyote</a>
+that adds scripting languages support. But from Coyote's website, there
+is no mention of scripting NetBeans itself. So I've decide to add
+support for scripting into NetBeans.</p>
+
+
+<p>Bear
+in mind that this module is stricly experimental. There are a lot of
+concepts that are not fully developed. The idea of this scrpting module
+is to perform most NetBean stuff (eg. creating a Editor TopCompont) but
+not to the level of the <a href="http://www.netbeans.org/download/dev/javadoc/">OpenIDE
+API</a>.<br>
+
+
+</p>
+
+
+<p>Still interested? Here is what you need to do:<br>
+
+
+</p>
+
+
+<ol>
+
+
+  <li>Download and install <a href="http://download.java.net/jdk6/" target="_blank">Mustang</a>.
+I've only tested this with build 89 and on Solaris/Linux only. YMMW on
+Windows.<br>
+
+
+  </li>
+
+
+  <li>Install the excellent NetBeans 5 and all the related
+patches or updates. <span style="font-weight: bold; color: rgb(204, 0, 0);">IMPORTANT</span>
+The ScriptEngine Module is developed on the beta release of Matisse.
+You have to update NetBeans for this module to work. If you see this
+while trying to install the ScriptingEngine, it means that you have yet
+to update NetBeans to the beta version of Matisse</li>
+</ol>
+<div style="margin-left: 40px;"><img style="border: 1px solid ; width: 504px; height: 170px;" alt="" src="images/error_dialog.png"><br>
+OTOH, if you are reading this, it means that you have successfully installed the module, so the warning is moot.</div>
+<ol start="3">
+
+
+  <li>Startup
+NetBeans in Mustang. This is essential. There are 2 ways of doing this:
+either change $NETBEANS_HOME/etc/netbeans.conf or use the --jdkhome
+switch. Since the module is experimental, I would also like to
+encourage you to use the --userdir switch as well.<br>
+
+
+  </li>
+
+
+  <li>Install the script engine and window system module which
+you probably have.<br>
+
+
+  </li>
+
+
+  <li>Install the <a href="http://blogs.sun.com/roller/resources/chuk/scripts_2006-06-29-1105.zip" target="_self">example scripts</a>.
+You can unzip this in any directory.</li>
+
+
+</ol>
+
+
+</body>
+</html>
