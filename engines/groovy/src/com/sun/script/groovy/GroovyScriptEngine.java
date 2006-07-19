@@ -29,126 +29,65 @@
  * @author A. Sundararajan
  */
 package com.sun.script.groovy;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Iterator;
-import java.util.ArrayList;
-import java.io.Reader;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.io.PrintWriter;
-import java.io.ByteArrayInputStream;
-import java.io.InputStreamReader;
-import java.io.FileInputStream;
+import java.io.*;
+import java.util.*;
 import javax.script.*;
 import groovy.lang.*;
 import org.codehaus.groovy.syntax.SyntaxException;
 import org.codehaus.groovy.runtime.InvokerHelper;
+import org.codehaus.groovy.runtime.MetaClassHelper;
+import org.codehaus.groovy.runtime.MethodClosure;
 import org.codehaus.groovy.control.CompilerConfiguration;
 import org.codehaus.groovy.control.CompilationFailedException;
 import java.lang.reflect.*;
 
 public class GroovyScriptEngine 
     extends AbstractScriptEngine implements Compilable, Invocable {
-    
-    
-    private Map classMap;
+
+    private static boolean DEBUG = false;
+
+    // script-string-to-generated Class map
+    private Map<String, Class> classMap;
+    // global closures map - this is used to simulate a single
+    // global functions namespace 
+    private Map<String, Closure> globalClosures;
+    // class loader for Groovy generated classes
     private GroovyClassLoader loader;
-    private Class currentClass;
-    private Script currentScript;
-    public static int counter;
-    private GroovyScriptEngineFactory factory;
-    private Script scriptObject;
+    // lazily initialized factory
+    private volatile GroovyScriptEngineFactory factory;
+
+    // counter used to generate unique global Script class names
+    private static int counter;
  
     static {
-        
         MetaClass.setUseReflection(true);
         counter = 0;
     }
     
     public GroovyScriptEngine() {    
-        
-        currentClass = null;
-        classMap = new HashMap();
-        loader = new GroovyClassLoader(Thread.currentThread().getContextClassLoader(),
-                                        new CompilerConfiguration());
-        factory = null; 
+        classMap = Collections.synchronizedMap(new HashMap<String, Class>());
+        globalClosures = Collections.synchronizedMap(new HashMap<String, Closure>());
+        loader = new GroovyClassLoader(getParentLoader(),
+                                       new CompilerConfiguration());
+    }
+
+    public Object eval(Reader reader, ScriptContext context) 
+                       throws ScriptException {
+        return eval(readFully(reader), context);
     }
     
-   
-    
-    public Object eval(Reader reader, ScriptContext context) throws ScriptException {
-        StringWriter writer = new StringWriter();
-        try {
-            int c = 0;
-            while (-1 != (c = reader.read())) {
-                writer.write(c);
-            }    
-            return eval(writer.toString(), context);
-        } catch (IOException e) {
-            throw new ScriptException("Could not read the script source.");
-        }
-    }
-    
-    public Object eval(String script, ScriptContext context) throws ScriptException {
+    public Object eval(String script, ScriptContext context) 
+                       throws ScriptException {
         try {
             return eval(getScriptClass(script), context);
         } catch (SyntaxException e) {
-            throw new ScriptException(e.getMessage(), e.getSourceLocator(), e.getLine());
+            throw new ScriptException(e.getMessage(), 
+                                      e.getSourceLocator(), e.getLine());
         } catch (Exception e) {
-            e.printStackTrace();
+            if (DEBUG) e.printStackTrace();
             throw new ScriptException(e);
         }
-            
     }
-    
-    public Object eval(Class scriptClass, ScriptContext context) throws ScriptException {
-        
-        //store the class for possible use by Invocable methods
-        currentClass = scriptClass;
-                
-        try {
-            
-            //add context to bindings
-            context.setAttribute("context", context, ScriptContext.ENGINE_SCOPE);
-        
-            //direct output to context.getWriter
-            Writer writer = context.getWriter();
-            
-            context.setAttribute("out", (writer instanceof PrintWriter) ? 
-                                    writer :
-                                    new PrintWriter(writer),
-                                    ScriptContext.ENGINE_SCOPE);
-
-            final ScriptContext ctx = context;
-            Binding binding = new Binding(context.getBindings(ScriptContext.ENGINE_SCOPE)) {
-                                  public Object getVariable(String name) {
-                                      int scope = ctx.getAttributesScope(name);
-                                      if (scope != -1) {
-                                          return ctx.getAttribute(name, scope);
-                                      } else {
-                                          return super.getVariable(name);
-                                      }
-                                  }
-                                  public void setVariable(String name, Object value) {
-                                      int scope = ctx.getAttributesScope(name);
-                                      if (scope != -1) {
-                                          ctx.setAttribute(name, value, scope);
-                                      } else {
-                                          super.setVariable(name, value);
-                                      }
-                                  }
-                              };
-
-            scriptObject = InvokerHelper.createScript(scriptClass, binding);
-            return scriptObject.run();
-       
-        } catch (Exception e) {
-            throw new ScriptException(e);
-        }                      
-    }
-    
     
     public Bindings createBindings() {
         return new SimpleBindings();
@@ -156,158 +95,256 @@ public class GroovyScriptEngine
     
     public ScriptEngineFactory getFactory() {
         if (factory == null) {
-            factory = new GroovyScriptEngineFactory();
+            synchronized (this) {
+                if (factory == null) {
+                    factory = new GroovyScriptEngineFactory();
+                }
+            }
         }
-        
         return factory;
     }
-    
-   protected synchronized String generateScriptName() {
-        return "Script" + (++counter) + ".groovy";
-   }
-    
-   public Class getScriptClass(String script) throws SyntaxException, 
-                                                    CompilationFailedException, 
-                                                    IOException {
-        Object obj = classMap.get(script);
-        if (obj != null) {
-            return (Class)obj;
-        }
-        
-        Class clasz = loader.parseClass(new ByteArrayInputStream(script.getBytes()), 
-                                                        generateScriptName());
-        
-        classMap.put(script, clasz);
-        
-        return clasz;
-    }
    
- 
-   public CompiledScript compile(String scriptSource) throws ScriptException {
-       try {
+    // javax.script.Compilable methods 
+    public CompiledScript compile(String scriptSource) throws ScriptException {
+        try {
             return new GroovyCompiledScript(this, 
                                     getScriptClass(scriptSource));
-       } catch (SyntaxException e) {
-            throw new ScriptException(e.getMessage(), e.getSourceLocator(), e.getLine());
-       } catch (IOException e) {
-           throw new ScriptException(e);
-       } catch (CompilationFailedException ee) {
-           throw new ScriptException(ee);
-       }
-   }   
-    
-   public CompiledScript compile(Reader reader) throws ScriptException {
-       StringWriter writer = new StringWriter();
-        try {
-            int c = 0;
-            while (-1 != (c = reader.read())) {
-                writer.write(c);
-            }    
-            return new GroovyCompiledScript(this, getScriptClass(writer.toString()));
-        } catch (IOException e) {
-            throw new ScriptException("Could not read the script source.");
         } catch (SyntaxException e) {
-            throw new ScriptException(e.getMessage(), e.getSourceLocator(), e.getLine());
+            throw new ScriptException(e.getMessage(), 
+                                      e.getSourceLocator(), e.getLine());
+        } catch (IOException e) {
+            throw new ScriptException(e);
         } catch (CompilationFailedException ee) {
             throw new ScriptException(ee);
         }
-   }
+    }   
+    
+    public CompiledScript compile(Reader reader) throws ScriptException {
+        return compile(readFully(reader));
+    }
    
-   /* Invocable methods.
-    */
-   public Object invokeFunction(String name, Object... args) 
-            throws ScriptException, NoSuchMethodException  {
-       return invokeImpl(null, name, args);
-   }
+    // javax.script.Invocable methods.
+    public Object invokeFunction(String name, Object... args) 
+             throws ScriptException, NoSuchMethodException  {
+        return invokeImpl(null, name, args);
+    }
    
-   public Object invokeMethod(Object thiz, String name, Object... args) 
-            throws ScriptException, NoSuchMethodException  {
-       if (thiz == null) {
-           throw new IllegalArgumentException("script object is null");
-       }
-       return invokeImpl(thiz, name, args);
-   }
+    public Object invokeMethod(Object thiz, String name, Object... args) 
+             throws ScriptException, NoSuchMethodException  {
+        if (thiz == null) {
+            throw new IllegalArgumentException("script object is null");
+        }
+        return invokeImpl(thiz, name, args);
+    }
 	        
-   private Object invokeImpl(Object thiz, String name, Object... args) 
-            throws ScriptException, NoSuchMethodException  {
-       if (name == null) {
-           throw new NullPointerException("method name is null");
-       }
-       //use reflection as with any java object.. If a this
-       //reference is passed, use it.  Otherwise, use the current
-       //GroovyClass.    
-       int len =  0;
-       Class[] types = null;
-       if (args != null) {
-		len = args.length;
-       		types = new Class[len];
-       		for (int i = 0; i < len; i++) {
-           		types[i] = java.lang.Object.class;
-		}
-      	} else {
-		types = new Class[]{};
-	}
-       
-       Class clasz = null;
-       
-       if (thiz != null) {
-           clasz = thiz.getClass();
-       } else {
-           clasz = currentClass;
-	   if (scriptObject == null) {
-		throw new ScriptException("Script has not been compiled.");
-	   }
-	   thiz = scriptObject;
-       }
-       
-       
-       Method method = clasz.getMethod(name, types);
-       if (thiz == null && !Modifier.isStatic(method.getModifiers())) {
-           throw new NoSuchMethodException();
-       }
-       if (thiz != null) {
-           try {
-                return method.invoke(thiz,  args);
-           } catch (IllegalAccessException e) {
-               //won't get here
-               return null;
-           } catch (InvocationTargetException e) {
-               throw new ScriptException(e);
-           }
-       } else {
-           //use InvokerHelper
-           try {
-               return InvokerHelper.invokeMethod(currentScript, name, args);
-           } catch (Exception e) {
-               throw new ScriptException(e);
-           }
-       }
-               
-   } 
-   
-   public <T> T getInterface(Class<T> clasz) {
-       return makeInterface(null, clasz);
-   }
+    public <T> T getInterface(Class<T> clasz) {
+        return makeInterface(null, clasz);
+    }
 
-   public <T> T getInterface(Object thiz, Class<T> clasz) {
-       if (thiz == null) {
-           throw new IllegalArgumentException("script object is null");
-       }
-       return makeInterface(thiz, clasz);
-   }
+    public <T> T getInterface(Object thiz, Class<T> clasz) {
+        if (thiz == null) {
+            throw new IllegalArgumentException("script object is null");
+        }
+        return makeInterface(thiz, clasz);
+    }
 
-   public <T> T makeInterface(Object obj, Class<T> clazz) {
-       final Object thiz = obj;
-       if (clazz == null || !clazz.isInterface()) {
-           throw new IllegalArgumentException("interface Class expected");
-       }
-       return (T) Proxy.newProxyInstance(
-             clazz.getClassLoader(),
-             new Class[] { clazz },
-             new InvocationHandler() {
-                 public Object invoke(Object proxy, Method m, Object[] args) throws Throwable {
-                     return invokeImpl(thiz, m.getName(), args);
-                 }
-             });
-   }
-}
+    // package-privates
+    Object eval(Class scriptClass, ScriptContext context) throws ScriptException {
+        //add context to bindings
+        context.setAttribute("context", context, ScriptContext.ENGINE_SCOPE);
+        
+        //direct output to context.getWriter
+        Writer writer = context.getWriter();
+        context.setAttribute("out", (writer instanceof PrintWriter) ? 
+                                  writer :
+                                  new PrintWriter(writer),
+                                  ScriptContext.ENGINE_SCOPE);
+
+        final ScriptContext ctx = context;
+
+        /*
+         * We use the following Binding instance so that global variable lookup
+         * will be done in the current ScriptContext instance.
+         */
+        Binding binding = new Binding(context.getBindings(ScriptContext.ENGINE_SCOPE)) {
+                              @Override
+                              public Object getVariable(String name) {
+                                  synchronized (ctx) {
+                                      int scope = ctx.getAttributesScope(name);
+                                      if (scope != -1) {
+                                          return ctx.getAttribute(name, scope);
+                                      }
+                                  }
+                                  throw new MissingPropertyException(name, getClass());
+                              }
+                              @Override
+                              public void setVariable(String name, Object value) {
+                                  synchronized (ctx) {
+                                      int scope = ctx.getAttributesScope(name);
+                                      if (scope == -1) {    
+                                          scope = ScriptContext.ENGINE_SCOPE;
+                                      } 
+                                      ctx.setAttribute(name, value, scope);
+                                  }
+                              }
+                          };
+
+        try {
+            Script scriptObject = InvokerHelper.createScript(scriptClass, binding);
+
+            // create a Map of MethodClosures from this new script object
+            Method[] methods = scriptClass.getMethods();
+            Map<String, Closure> closures = new HashMap<String, Closure>();
+            for (Method m : methods) {
+                String name = m.getName();
+                closures.put(name, new MethodClosure(scriptObject, name));
+            }
+
+            // save all current closures into global closures map
+            globalClosures.putAll(closures);
+
+            MetaClass oldMetaClass = scriptObject.getMetaClass();
+
+            /*
+             * We override the MetaClass of this script object so that we can
+             * forward calls to global closures (of previous or future "eval" calls)
+             * This gives the illusion of working on the same "global" scope.
+             */
+            scriptObject.setMetaClass(new DelegatingMetaClass(oldMetaClass) {
+                        @Override
+                        public Object invokeMethod(Object object, String name, Object args) {
+                            if (args == null) {
+                                return invokeMethod(object, name, MetaClassHelper.EMPTY_ARRAY);
+                            }
+                            if (args instanceof Tuple) {
+                                return invokeMethod(object, name, ((Tuple)args).toArray());
+                            }
+                            if (args instanceof Object[]) {
+                                return invokeMethod(object, name, (Object[]) args);
+                            } else {
+                                return invokeMethod(object, name, new Object[] { args });
+                            }
+                        }
+
+                        @Override
+                        public Object invokeMethod(Object object, String name, Object[] args) {
+                            try {
+                                return super.invokeMethod(object, name, args);
+                            } catch (MissingMethodException mme) {
+                                return callGlobal(name, args);
+                            }
+                        }
+                        @Override
+                        public Object invokeStaticMethod(Object object, String name, Object[] args) {
+                            try {
+                                return super.invokeStaticMethod(object, name, args);
+                            } catch (MissingMethodException mme) {
+                                return callGlobal(name, args);
+                            }
+                        }
+                    });
+
+            return scriptObject.run();
+        } catch (Exception e) {
+            throw new ScriptException(e);
+        }
+    }
+
+    Class getScriptClass(String script) 
+                         throws SyntaxException, 
+                                CompilationFailedException, 
+                                IOException {
+        Class clazz = classMap.get(script);
+        if (clazz != null) {
+            return clazz;
+        }
+       
+        InputStream stream = new ByteArrayInputStream(script.getBytes()); 
+        clazz = loader.parseClass(stream, generateScriptName());
+        classMap.put(script, clazz);
+        return clazz;
+    }
+
+    //-- Internals only below this point
+
+    // invokes the specified method/function on the given object.
+    private Object invokeImpl(Object thiz, String name, Object... args) 
+             throws ScriptException, NoSuchMethodException  {
+        if (name == null) {
+            throw new NullPointerException("method name is null");
+        }
+
+        try {
+            if (thiz != null) {
+                return InvokerHelper.invokeMethod(thiz, name, args);
+            } else {
+                return callGlobal(name, args);
+            }
+        } catch (MissingMethodException mme) {
+            throw new NoSuchMethodException(mme.getMessage());
+        } catch (Exception e) {
+            throw new ScriptException(e);
+        }
+    } 
+
+    // call the script global function of the given name
+    private Object callGlobal(String name, Object[] args) {
+        Closure closure = globalClosures.get(name);
+        if (closure != null) {
+            return closure.call(args);
+        } else {
+            throw new MissingMethodException(name, getClass(), args);
+        }
+    }
+
+    // generate a unique name for top-level Script classes
+    private synchronized String generateScriptName() {
+        return "Script" + (++counter) + ".groovy";
+    }
+
+    private <T> T makeInterface(Object obj, Class<T> clazz) {
+        final Object thiz = obj;
+        if (clazz == null || !clazz.isInterface()) {
+            throw new IllegalArgumentException("interface Class expected");
+        }
+        return (T) Proxy.newProxyInstance(
+            clazz.getClassLoader(),
+            new Class[] { clazz },
+            new InvocationHandler() {
+                public Object invoke(Object proxy, Method m, Object[] args)
+                                     throws Throwable {
+                    return invokeImpl(thiz, m.getName(), args);
+                }
+            });
+    }
+
+    // determine appropriate class loader to serve as parent loader
+    // for GroovyClassLoader instance
+    private ClassLoader getParentLoader() {
+        // check whether thread context loader can "see" Groovy Script class
+        ClassLoader ctxtLoader = Thread.currentThread().getContextClassLoader();
+        try {
+            Class c = ctxtLoader.loadClass("org.codehaus.groovy.Script");
+            if (c == Script.class) {
+                return ctxtLoader;
+            }
+        } catch (ClassNotFoundException cnfe) {
+        }
+        // exception was thrown or we get wrong class
+        return Script.class.getClassLoader();
+    }
+
+    private String readFully(Reader reader) throws ScriptException {
+        char[] arr = new char[8*1024]; // 8K at a time
+        StringBuffer buf = new StringBuffer();
+        int numChars;
+        try {
+            while ((numChars = reader.read(arr, 0, arr.length)) > 0) {
+                buf.append(arr, 0, numChars);
+            }
+        } catch (IOException exp) {
+            throw new ScriptException(exp);
+        }
+        return buf.toString();
+    }
+} 

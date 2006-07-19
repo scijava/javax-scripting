@@ -39,7 +39,7 @@ public class GroovyScriptEngineFactory implements ScriptEngineFactory {
     }
 
     public String getEngineVersion() {
-        return "1.0-JSR-06";
+        return org.codehaus.groovy.runtime.InvokerHelper.getVersion();
     }
 
     public String getLanguageName() {
@@ -69,11 +69,11 @@ public class GroovyScriptEngineFactory implements ScriptEngineFactory {
         } else if (key.equals(ScriptEngine.ENGINE)) {
             return "Groovy Script Engine";
         } else if (key.equals(ScriptEngine.ENGINE_VERSION)) {
-            return "1.0";
+            return org.codehaus.groovy.runtime.InvokerHelper.getVersion();
         } else if (key.equals(ScriptEngine.LANGUAGE)) {
             return "Groovy";
         } else if (key.equals(ScriptEngine.LANGUAGE_VERSION)) {
-            return "1.0-JSR-06";
+            return "1.0";
         } else if (key.equals("THREADING")) {
             return "MULTITHREADED";
         } else {
@@ -131,12 +131,13 @@ public class GroovyScriptEngineFactory implements ScriptEngineFactory {
     }    
     
     public String getProgram(String... statements) {
-        String ret = "";
+        StringBuffer ret = new StringBuffer();
         int len = statements.length;
         for (int i = 0; i < len; i++) {
-            ret += statements[i] + ";";
+            ret.append(statements[i]);
+            ret.append('\n');
         }
-        return ret;
+        return ret.toString();
     }
 
     private static List<String> names;
