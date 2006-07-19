@@ -143,6 +143,8 @@ public class SchemeScriptEngine extends AbstractScriptEngine
                     }
                 }
             });
+        } catch (SchemeException se) {
+            throw new ScriptException(se);
         } catch (RuntimeException re) {
             handleRuntimeException2(re);
             // should not reach here..
@@ -196,6 +198,8 @@ public class SchemeScriptEngine extends AbstractScriptEngine
                     }
                 }
             });
+        } catch (SchemeException se) {
+            throw new ScriptException(se);
         } catch (RuntimeException re) {
             handleRuntimeException(re);
             // should not reach here..
@@ -375,19 +379,15 @@ public class SchemeScriptEngine extends AbstractScriptEngine
     }
 
     private void initApp() {
-        Context.execute(appContext, new SchemeCaller() {
-                public Object execute(Interpreter interp) {
-                    try {
-                        SeekableInputStream his = findHeap();                        
-                        SeekableDataInputStream in = new SeekableDataInputStream(his);                 
-                        appContext.loadEnv(interp, in);
-                        return null;
-                    } catch (Exception exp) {
-                        exp.printStackTrace();
-                        throw new RuntimeException(exp);
-                    } 
-                }
-        });
+        try {
+            SeekableInputStream his = findHeap();                        
+            SeekableDataInputStream in = new SeekableDataInputStream(his);                 
+            appContext.loadEnv(in);
+        } catch (IOException ie) {
+            throw new RuntimeException(ie);
+        } catch (ClassNotFoundException cnfe) {
+            throw new RuntimeException(cnfe);
+        }
     }
 
     private static long sequence = 0L;
