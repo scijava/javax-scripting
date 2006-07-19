@@ -38,7 +38,7 @@ public class OgnlScriptEngineFactory implements ScriptEngineFactory {
     }
 
     public String getEngineVersion() {
-        return "2.6.7";
+        return "2.6.9";
     }
 
     public List<String> getExtensions() {
@@ -50,7 +50,7 @@ public class OgnlScriptEngineFactory implements ScriptEngineFactory {
     }
 
     public String getLanguageVersion() {
-        return "2.6.7";
+        return "2.6.9";
     }
 
     public String getMethodCallSyntax(String obj, String m, String... args) {
