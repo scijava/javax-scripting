@@ -1,0 +1,3 @@
+BEGIN {
+printf("hello world");
+}
