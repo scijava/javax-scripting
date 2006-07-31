@@ -4,6 +4,7 @@
   <property name="dist.dir" value="jsr223-engines"/>
 
   <target name="clean">
+    <ant dir="jawk/make" target="clean"/>
     <ant dir="groovy/make" target="clean"/>
     <ant dir="jacl/make" target="clean"/>
     <ant dir="java/make" target="clean"/>
@@ -24,6 +25,7 @@
   </target>
 
   <target name="all" description="Builds sources and deployment jars">
+    <ant dir="jawk/make"/>
     <ant dir="groovy/make"/>
     <ant dir="jacl/make"/>
     <ant dir="java/make"/>
@@ -43,6 +45,19 @@
   <target name="images" description="Prepare binary download bundle"
           depends="all">
     <mkdir dir="${dist.dir}"/>
+
+    <property name="jawk.dir" value="${dist.dir}/jawk"/>
+    <mkdir dir="${jawk.dir}/build"/>
+    <mkdir dir="${jawk.dir}/lib"/>
+    <mkdir dir="${jawk.dir}/bin"/>
+    <copy todir="${jawk.dir}/build">
+      <fileset file="jawk/build/*.jar"/>
+    </copy>
+    <copy todir="${jawk.dir}/bin">
+      <fileset file="jawk/bin/*"/>
+    </copy>
+    <copy file="jawk/README.TXT" todir="${jawk.dir}"/>
+    <copy file="jawk/LICENSE.TXT" todir="${jawk.dir}"/>
 
     <property name="groovy.dir" value="${dist.dir}/groovy"/>
     <mkdir dir="${groovy.dir}/build"/>

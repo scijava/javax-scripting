@@ -1,3 +1,0 @@
-BEGIN {
-printf("hello world");
-}
