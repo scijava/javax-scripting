@@ -38,7 +38,7 @@ public class JaclScriptEngineFactory implements ScriptEngineFactory {
     }
 
     public String getEngineVersion() {
-        return "1.3.2";
+        return "1.3.3";
     }
 
     public List<String> getExtensions() {
@@ -50,7 +50,7 @@ public class JaclScriptEngineFactory implements ScriptEngineFactory {
     }
 
     public String getLanguageVersion() {
-        return "1.3.2";
+        return "1.3.3";
     }
 
     public String getMethodCallSyntax(String obj, String m, String... args) {
