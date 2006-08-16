@@ -16,23 +16,20 @@
 </HEAD>
 <BODY LANG="en-US" TEXT="#000000" BGCOLOR="#ffffff" DIR="LTR">
 <H1>scripting.dev.java.net</H1>
-<P> Mustang (Java SE 6)  will contain a Scripting Framework based on
-the Reference implementation of 
-</P>
-<P> <A HREF="http://www.jcp.org/en/jsr/detail?id=223">JSR 223:
-Scripting for the JavaTM Platform</A>.</P>
-<P>The Framework can be used to host Script Engines in Java
-Applications.  The Mustang release includes a Script Engine based on 
-</P>
-<P><A HREF="http://www.mozilla.org/rhino/">Rhino: JavaScript for Java</A></P>
-<P>The Framework also supports third-party Script Engines that
+<P>Java SE 6 will contain 
+<A HREF="http://www.jcp.org/en/jsr/detail?id=223">JSR 223:
+Scripting for the JavaTM Platform</A> API classes. This Framework can be used to host Script Engines in Java
+Applications. Sun's implementation of Java SE 6 includes a Script Engine based on 
+<A HREF="http://www.mozilla.org/rhino/">Rhino: JavaScript for Java</A></P>
+
+<P>The Scripting Framework also supports third-party Script Engines that
 implement the <A HREF="http://download.java.net/jdk6/docs/api/javax/script/package-summary.html">JSR
-223 Scripting APIs</A> .   The primary purpose of the  project is to
+223 Scripting APIs</A> . The primary purpose of this project is to
 provide ScriptEngine implementations that developers can use in their
 Java Applications.  Developers  can also use the Script Engines as
 examples of how to implement the Scripting APIs using their own
 Java-based Scripting implementations.</P>
-<P>The project will also include example applications that use the
+<P>This project also includes example applications that use the
 Scripting Framework.  Developers are invited to participate in the
 project by including their own ScriptEngines and applications.</P>
 <P>The Source Code in the project is licensed under the BSD License. 
@@ -62,8 +59,7 @@ sub-directory.
 
 <h4>Build Requirements</h4>
 <ul>
-<li><a href="https:/mustang.dev.java.net">Latest JDK build of Mustang from
-https://mustang.dev.java.net</a></li>
+<li><a href="https:/mustang.dev.java.net">JDK 6</a></li>
 <li><a href="http://ant.apache.org">Ant build tool from http://ant.apache.org</a> - you need ant version 1.5.4 or above</li>
 <li><a href="https://www.dev.java.net/nonav/scdocs/ddCVS.html">cvs</a> to checkout the sources for this project</li>
 </ul>
@@ -144,10 +140,12 @@ Implementation
 
 <tr>
 <td>
-JavaScript
+<a href="http://www.mozilla.org/js">JavaScript</a>
 </td>
 <td>
-Browser's native JS interpreter is wrapped as javax.script API.
+Web Browser's native JS interpreter is wrapped as javax.script API.
+Note that this script engine works only under web browsers. i.e., only
+within Java applets.
 </td>
 <td>
 Web Browser's JS implementation (tested with Firefox 1.5.0)
