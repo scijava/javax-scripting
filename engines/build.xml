@@ -5,10 +5,11 @@
 
   <target name="clean">
     <ant dir="browserjs/make" target="clean"/>
-    <ant dir="jawk/make" target="clean"/>
     <ant dir="groovy/make" target="clean"/>
     <ant dir="jacl/make" target="clean"/>
+    <ant dir="jaskell/make" target="clean"/>
     <ant dir="java/make" target="clean"/>
+    <ant dir="jawk/make" target="clean"/>
     <ant dir="jelly/make" target="clean"/>
     <ant dir="jexl/make" target="clean"/>
     <ant dir="jruby/make" target="clean"/>
@@ -27,10 +28,11 @@
 
   <target name="all" description="Builds sources and deployment jars">
     <ant dir="browserjs/make"/>
-    <ant dir="jawk/make"/>
     <ant dir="groovy/make"/>
     <ant dir="jacl/make"/>
+    <ant dir="jaskell/make"/>
     <ant dir="java/make"/>
+    <ant dir="jawk/make"/>
     <ant dir="jelly/make"/>
     <ant dir="jexl/make"/>
     <ant dir="jruby/make"/>
@@ -56,19 +58,6 @@
     </copy>
     <copy file="browserjs/README.TXT" todir="${browserjs.dir}"/>
     <copy file="browserjs/LICENSE.TXT" todir="${browserjs.dir}"/>
-
-    <property name="jawk.dir" value="${dist.dir}/jawk"/>
-    <mkdir dir="${jawk.dir}/build"/>
-    <mkdir dir="${jawk.dir}/lib"/>
-    <mkdir dir="${jawk.dir}/bin"/>
-    <copy todir="${jawk.dir}/build">
-      <fileset file="jawk/build/*.jar"/>
-    </copy>
-    <copy todir="${jawk.dir}/bin">
-      <fileset file="jawk/bin/*"/>
-    </copy>
-    <copy file="jawk/README.TXT" todir="${jawk.dir}"/>
-    <copy file="jawk/LICENSE.TXT" todir="${jawk.dir}"/>
 
     <property name="groovy.dir" value="${dist.dir}/groovy"/>
     <mkdir dir="${groovy.dir}/build"/>
@@ -96,6 +85,19 @@
     <copy file="jacl/README.TXT" todir="${jacl.dir}"/>
     <copy file="jacl/LICENSE.TXT" todir="${jacl.dir}"/>
 
+    <property name="jaskell.dir" value="${dist.dir}/jaskell"/>
+    <mkdir dir="${jaskell.dir}/build"/>
+    <mkdir dir="${jaskell.dir}/lib"/>
+    <mkdir dir="${jaskell.dir}/bin"/>
+    <copy todir="${jaskell.dir}/build">
+      <fileset file="jaskell/build/*.jar"/>
+    </copy>
+    <copy todir="${jaskell.dir}/bin">
+      <fileset file="jaskell/bin/*"/>
+    </copy>
+    <copy file="jaskell/README.TXT" todir="${jaskell.dir}"/>
+    <copy file="jaskell/LICENSE.TXT" todir="${jaskell.dir}"/>
+
     <property name="java.dir" value="${dist.dir}/java"/>
     <mkdir dir="${java.dir}/build"/>
     <mkdir dir="${java.dir}/lib"/>
@@ -108,6 +110,19 @@
     </copy>
     <copy file="java/README.TXT" todir="${java.dir}"/>
     <copy file="java/LICENSE.TXT" todir="${java.dir}"/>
+
+    <property name="jawk.dir" value="${dist.dir}/jawk"/>
+    <mkdir dir="${jawk.dir}/build"/>
+    <mkdir dir="${jawk.dir}/lib"/>
+    <mkdir dir="${jawk.dir}/bin"/>
+    <copy todir="${jawk.dir}/build">
+      <fileset file="jawk/build/*.jar"/>
+    </copy>
+    <copy todir="${jawk.dir}/bin">
+      <fileset file="jawk/bin/*"/>
+    </copy>
+    <copy file="jawk/README.TXT" todir="${jawk.dir}"/>
+    <copy file="jawk/LICENSE.TXT" todir="${jawk.dir}"/>
 
     <property name="jelly.dir" value="${dist.dir}/jelly"/>
     <mkdir dir="${jelly.dir}/build"/>
