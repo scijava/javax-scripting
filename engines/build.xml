@@ -59,6 +59,14 @@
     <copy file="browserjs/README.TXT" todir="${browserjs.dir}"/>
     <copy file="browserjs/LICENSE.TXT" todir="${browserjs.dir}"/>
 
+    <property name="ejs.dir" value="${dist.dir}/ejs"/>
+    <mkdir dir="${browserjs.dir}/src"/>
+    <copy todir="${browserjs.dir}/src">
+      <fileset file="browserjs/src/*.js"/>
+    </copy>
+    <copy file="ejs/README.TXT" todir="${ejs.dir}"/>
+    <copy file="ejs/LICENSE.TXT" todir="${ejs.dir}"/>
+
     <property name="groovy.dir" value="${dist.dir}/groovy"/>
     <mkdir dir="${groovy.dir}/build"/>
     <mkdir dir="${groovy.dir}/lib"/>
@@ -162,6 +170,14 @@
     </copy>
     <copy file="jruby/README.TXT" todir="${jruby.dir}"/>
     <copy file="jruby/LICENSE.TXT" todir="${jruby.dir}"/>
+
+    <property name="jst.dir" value="${dist.dir}/jst"/>
+    <mkdir dir="${jst.dir}/src"/>
+    <copy todir="${jst.dir}/src">
+      <fileset file="jst/src/*.js"/>
+    </copy>
+    <copy file="jst/README.TXT" todir="${jst.dir}"/>
+    <copy file="jst/LICENSE.TXT" todir="${jst.dir}"/>
 
     <property name="judo.dir" value="${dist.dir}/judo"/>
     <mkdir dir="${judo.dir}/build"/>
