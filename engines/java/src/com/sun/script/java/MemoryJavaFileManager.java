@@ -122,7 +122,11 @@ public final class MemoryJavaFileManager extends ForwardingJavaFileManager {
         if (file.exists()) {
             return file.toURI();
         } else {
-            return URI.create("mfm:///" + name.replace('.', '/'));
+            try {
+                return URI.create("mfm:///" + name.replace('.', '/'));
+            } catch (Exception exp) {
+                return URI.create("mfm:///com/sun/script/java/java_source");
+            }
         }
     }
 }
