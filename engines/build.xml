@@ -60,9 +60,9 @@
     <copy file="browserjs/LICENSE.TXT" todir="${browserjs.dir}"/>
 
     <property name="ejs.dir" value="${dist.dir}/ejs"/>
-    <mkdir dir="${browserjs.dir}/src"/>
-    <copy todir="${browserjs.dir}/src">
-      <fileset file="browserjs/src/*.js"/>
+    <mkdir dir="${ejs.dir}/src"/>
+    <copy todir="${ejs.dir}/src">
+      <fileset file="ejs/src/*.js"/>
     </copy>
     <copy file="ejs/README.TXT" todir="${ejs.dir}"/>
     <copy file="ejs/LICENSE.TXT" todir="${ejs.dir}"/>
