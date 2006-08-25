@@ -1,5 +1,5 @@
-This is JSR-223 script engine for the Java Expression Parser (JEP)
-language. The Java Expression Parser (JEP) is available for download 
+This is JSR-223 script engine for the Java Math Expression Parser (JEP)
+language. The Java Math Expression Parser (JEP) is available for download 
 http://www.singularsys.com/jep/. We have built and tested with JEP 
 version 2.4.0.
 
