@@ -11,6 +11,7 @@
     <ant dir="java/make" target="clean"/>
     <ant dir="jawk/make" target="clean"/>
     <ant dir="jelly/make" target="clean"/>
+    <ant dir="jep/make" target="clean"/>
     <ant dir="jexl/make" target="clean"/>
     <ant dir="jruby/make" target="clean"/>
     <ant dir="judo/make" target="clean"/>
@@ -34,6 +35,7 @@
     <ant dir="java/make"/>
     <ant dir="jawk/make"/>
     <ant dir="jelly/make"/>
+    <ant dir="jep/make"/>
     <ant dir="jexl/make"/>
     <ant dir="jruby/make"/>
     <ant dir="judo/make"/>
@@ -144,6 +146,19 @@
     </copy>
     <copy file="jelly/README.TXT" todir="${jelly.dir}"/>
     <copy file="jelly/LICENSE.TXT" todir="${jelly.dir}"/>
+
+    <property name="jep.dir" value="${dist.dir}/jep"/>
+    <mkdir dir="${jep.dir}/build"/>
+    <mkdir dir="${jep.dir}/lib"/>
+    <mkdir dir="${jep.dir}/bin"/>
+    <copy todir="${jep.dir}/build">
+      <fileset file="jep/build/*.jar"/>
+    </copy>
+    <copy todir="${jep.dir}/bin">
+      <fileset file="jep/bin/*"/>
+    </copy>
+    <copy file="jep/README.TXT" todir="${jep.dir}"/>
+    <copy file="jep/LICENSE.TXT" todir="${jep.dir}"/>
 
     <property name="jexl.dir" value="${dist.dir}/jexl"/>
     <mkdir dir="${jexl.dir}/build"/>
