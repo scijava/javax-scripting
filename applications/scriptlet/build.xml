@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="scriptlet" default="all" basedir=".">
+
+  <!-- Property Definitions -->
+
+  <property name="app.name" value="scriptlet"/>
+  <property name="src.dir"  value="src"/>
+  <property name="build.dir"  value="."/>
+  <property name="dist.jar" value="${build.dir}/${app.name}.jar"/>
+  <property name="classes.dir"  value="${build.dir}/classes"/>
+
+  <target name="prepare">
+    <mkdir dir="${classes.dir}"/>
+  </target>
+
+  <target name="clean">
+     <delete dir="${classes.dir}"/>
+     <delete file="${dist.jar}"/>
+  </target>
+
+  <target name="compile" depends="prepare" description="Compiles the sources">
+    <javac srcdir="${src.dir}"
+           destdir="${classes.dir}"
+           debug="on" deprecation="on"/>
+    <copy todir="${classes.dir}/resources">
+      <fileset dir="${src.dir}/resources"/>
+    </copy>
+  </target>
+
+  <target name="deploy" depends="compile" description="Creates a deployment bundle">
+    <jar jarfile="${dist.jar}"
+         basedir="${classes.dir}"
+         manifest="${src.dir}/META-INF/manifest.mf"/>
+  </target>
+
+  <target name="all" depends="deploy" description="Builds sources and deployment jar"/>
+
+</project>

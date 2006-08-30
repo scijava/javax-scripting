@@ -1,0 +1,68 @@
+<html>
+<head>
+<title>
+Scriptlets
+</title>
+</head>
+<body>
+
+<h1>What are Scriptlets?</h1>
+
+<p>
+A Scriptlet is a Java applet written in JavaScript. Developers
+use a predefined applet class (com.sun.scriptlet.Scriptlet) 
+and define an applet param which identifies a JavaScript. The JavaScript
+code can define one or more script functions to "override" 
+applet's methods such as start, stop, init, destroy or paint.
+By just defining paint function, scriptlet becomes more or less
+same as the new <b><a href="http://en.wikipedia.org/wiki/Canvas_(HTML_element)">canvas tag</a></b>.
+But unlike canvas tag, scriptlet functions can access the entire 
+JDK API. The current applet object is exposed as first argument
+to scriptlet functions. Using this, scriptlet can play audio 
+(by calling play method), for example. With just the knowledge 
+of JavaScript and Java API, very nice applets can be written.
+No direct Java knowledge is required.
+</p>
+
+<h3>Scriptlet Source</h3>
+
+<b><a href="src/com/sun/scriptlet/Scriptlet.java">Scriptlet.java</a></b>
+
+<h3>Scriptlet JavaScript "API"</h3>
+
+<b><a href="src/resources/scriptlet.init.js">scriptlet.init.js</a></b>
+is the initial script file executed by Scriptlet before actually
+executing user-defined scripts. This initialization script
+defines few useful functions and variables. 
+Using
+<b><a href="http://java.sun.com/j2se/1.4.2/docs/guide/plugin/developer_guide/java_js.html">
+Java-to-Javascript Communication</a></b> between Java to 
+browser's built-in JavaScript engine, a <code>window</code>
+variable is defined. This <code>window</code> variable can be
+used by scriptlet scripts to access browser's script objects.
+For example, <code>window.location.href</code> returns the URL
+of the currently visited web page. Similarly <code>window.document</code>
+can be used to get the DOM document object of the current
+HTML page.
+
+
+
+<h3>Scriptlet Samples</h3>
+<ul>
+<li><a href="src/scriptlets/hello.html">hello.html</a>
+- a simple "hello world" scriptlet
+<li><a href="src/scriptlets/blink.html">blink.html</a>
+- scriptlet that blinks a text
+<li><a href="src/scriptlets/shapes.html">shapes.html</a>
+- scriptlet that draws few 2D shapes
+<li><a href="src/scriptlets/chart.html">chart.html</a>
+- scriptlet that draws random charts
+<li><a href="src/scriptlets/animation.html">animation.html</a>
+- scriptlet that shows a 2D animation of rectangles
+<li><a href="src/scriptlets/browser.html">browser.html</a>
+- scriptlet that accesses to browser's script
+objects
+<li><a href="src/scriptlets/browser2.html">browser2.html</a>
+- another scriptlet that accesses to browser's script
+objects
+</ul>
