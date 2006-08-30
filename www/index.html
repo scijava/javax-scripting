@@ -88,7 +88,7 @@ sub-directory.
 <ol>
 <li>cd <b><code>$SCRIPTING_SRC/engines/&lt;script-engine-dir&gt;/bin</code></b>
 <li>Use the shell script (or batch file) under the above dir
-to run the script engine. These are wrappers over <a href="http://java.sun.com/javase/6/docs/technotes/tools/share/jrunscript.html">jrunscript</a> tool shipped with Mustang JDK.
+to run the script engine. These are wrappers over <a href="http://java.sun.com/javase/6/docs/technotes/tools/share/jrunscript.html">jrunscript</a> tool shipped with JDK 6.
 </ol>
 
 <p>
@@ -104,12 +104,26 @@ you have put <i>Foo-</i>engine.jar file and associated jar files in $SCRIPTING_S
 </p>
 
 <h3>Scripting applications</h3>
+
+<h4>NetBeans scripting module</h4>
+
 <p>
 In addition to the JSR-223 script engines for many languages, we want to
 develop/maintain interesting/useful applications of scripting. To start,
 scripting support modules for <b><a href="http://www.netbeans.org">NetBeans</a>
 </b> IDE have been added under <b><code>applications/NetBeansModules</code></b>
 directory.
+</p>
+
+<h4>Scriptlets</h4>
+
+<p>
+Scriptlets are applets written in JavaScript. Developers use a pre-defined
+Java applet class (com.sun.scriptlet.Scriptlet) and define an applet param
+which identifies a JavaScript. The JavaScript code can define functions
+for applet's paint, init, start, stop and destroy methods [effectively
+"override" applet's methods with JavaScript functions]. The code for
+scriptlet is under <b><code>applications/scriptlet</code></b> directory.
 </p>
 
 <h3>Useful scripts</h3>
@@ -119,7 +133,7 @@ we have added few scripts under <b><code>scripts/javascript/ajax</code></b>
 directory. 
 </p>
 <p>These include <b><code>ajax.js</code></b> (script
-to support XMLHttpRequest, XMLSerializer, DOMParser etc. for Mustang's
+to support XMLHttpRequest, XMLSerializer, DOMParser etc. for JDK 6's
 JavaScript engine) and two test scripts (test.js, test2.js) to test the same.
 </p>
 
