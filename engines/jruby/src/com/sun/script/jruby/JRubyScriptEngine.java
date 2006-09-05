@@ -224,7 +224,7 @@ public class JRubyScriptEngine extends AbstractScriptEngine
     }
 
     private void setGlobalVariables(final ScriptContext ctx) {
-        ctx.setAttribute("$context", ctx, ScriptContext.ENGINE_SCOPE);
+        ctx.setAttribute("context", ctx, ScriptContext.ENGINE_SCOPE);
         setGlobalVariables(new GlobalVariables(runtime) {
                 GlobalVariables parent = runtime.getGlobalVariables();
                 
@@ -257,9 +257,11 @@ public class JRubyScriptEngine extends AbstractScriptEngine
                         boolean defined = ctx.getAttributesScope(name) != -1;
                         if (defined) {
                             return true;
-                        }
-                        else {
-                            return parent.isDefined(name);
+                        } else {
+                            // skip '$' and check
+                            String modifiedName = name.substring(1);
+                            defined = ctx.getAttributesScope(modifiedName) != -1;
+                            return defined ? true : parent.isDefined(name);
                         }
                     }
                 }
@@ -288,18 +290,24 @@ public class JRubyScriptEngine extends AbstractScriptEngine
                 public IRubyObject get(String name) {
                     assert name != null;
                     assert name.startsWith("$");
+
+                    String modifiedName = name;
                     synchronized (ctx) {
                         int scope = ctx.getAttributesScope(name);
                         if (scope == -1) {
-                            return parent.get(name);
-                        }
-                        else {
-                            Object obj = ctx.getAttribute(name, scope);
-                            if (obj instanceof IAccessor) {
-                                return ((IAccessor)obj).getValue();
-                            } else {
-                                return javaToRuby(obj);
+                            // skip '$' and try
+                            modifiedName = name.substring(1);
+                            scope = ctx.getAttributesScope(modifiedName);
+                            if (scope == -1) {
+                                return parent.get(name);
                             }
+                        } 
+
+                        Object obj = ctx.getAttribute(modifiedName, scope);
+                        if (obj instanceof IAccessor) {
+                            return ((IAccessor)obj).getValue();
+                        } else {
+                            return javaToRuby(obj);
                         }
                     }                    
                 }
@@ -314,15 +322,21 @@ public class JRubyScriptEngine extends AbstractScriptEngine
 
                     synchronized (ctx) {
                         int scope = ctx.getAttributesScope(name);
+                        String modifiedName = name;
                         if (scope == -1) {
-                            scope = ScriptContext.ENGINE_SCOPE;
+                            // skip '$' and try
+                            modifiedName = name.substring(1);
+                            scope = ctx.getAttributesScope(modifiedName);
+                            if (scope == -1) {
+                                scope = ScriptContext.ENGINE_SCOPE;
+                            }
                         }
                         IRubyObject oldValue = get(name);
-                        Object obj = ctx.getAttribute(name, scope);
+                        Object obj = ctx.getAttribute(modifiedName, scope);
                         if (obj instanceof IAccessor) {
                             ((IAccessor)obj).setValue(value);
                         } else {                        
-                            ctx.setAttribute(name, rubyToJava(value), scope);
+                            ctx.setAttribute(modifiedName, rubyToJava(value), scope);
                         }
                         return oldValue;
                     }
