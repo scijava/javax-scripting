@@ -39,43 +39,24 @@ import org.apache.velocity.app.*;
 public class VelocityScriptEngine extends AbstractScriptEngine {
 
     public static final String STRING_OUTPUT_MODE = "com.sun.script.velocity.stringOutput";
+    public static final String VELOCITY_PROPERTIES = "com.sun.script.velocity.properties";
 
     // my factory, may be null
-    private ScriptEngineFactory factory;
-    private VelocityEngine vengine;
-
-    public VelocityScriptEngine(ScriptEngineFactory factory, Properties props) {
-        this.factory = factory;
-        vengine = new VelocityEngine();
-        try {
-            if (props != null) {
-                vengine.init(props);
-            } else {
-                vengine.init();
-            }
-        } catch (RuntimeException rexp) {
-            throw rexp;
-        } catch (Exception exp) {
-            throw new RuntimeException(exp);
-        }
-    }   
-
-    public VelocityScriptEngine(Properties props) {
-        this(null, props);
-    }
+    private volatile ScriptEngineFactory factory;
+    private volatile VelocityEngine vengine;
 
     public VelocityScriptEngine(ScriptEngineFactory factory) {
-        this(factory, null);
+        this.factory = factory;
     }
 
     public VelocityScriptEngine() {
-        this(null, null);
+        this(null);
     }
 
     public VelocityEngine getVelocityEngine() {
         return vengine;
     }
-	
+
     // ScriptEngine methods
     public Object eval(String str, ScriptContext ctx) 
                        throws ScriptException {	
@@ -84,6 +65,7 @@ public class VelocityScriptEngine extends AbstractScriptEngine {
 
     public Object eval(Reader reader, ScriptContext ctx)
                        throws ScriptException { 
+        initVelocityEngine(ctx);
         String fileName = getFilename(ctx);
         VelocityContext vctx = getVelocityContext(ctx);
         boolean outputAsString = isStringOutputMode(ctx);
@@ -103,10 +85,12 @@ public class VelocityScriptEngine extends AbstractScriptEngine {
     }
 
     public ScriptEngineFactory getFactory() {
-	  synchronized (this) {
-	      if (factory == null) {
-	          factory = new VelocityScriptEngineFactory();
-	      }
+        if (factory == null) {
+            synchronized (this) {
+	          if (factory == null) {
+	              factory = new VelocityScriptEngineFactory();
+	          }
+            }
         }
 	  return factory;
     }
@@ -116,6 +100,28 @@ public class VelocityScriptEngine extends AbstractScriptEngine {
     }
 
     // internals only below this point
+    private void initVelocityEngine(ScriptContext ctx) {
+        if (vengine == null) {
+            synchronized (this) {
+                if (vengine != null) return;
+                VelocityEngine tmpEngine = new VelocityEngine();
+                Object props = ctx.getAttribute(VELOCITY_PROPERTIES);
+                try {
+                    if (props instanceof Properties) {
+                        tmpEngine.init((Properties)props);
+                    } else {
+                        tmpEngine.init();
+                    }
+                } catch (RuntimeException rexp) {
+                    throw rexp;
+                } catch (Exception exp) {
+                    throw new RuntimeException(exp);
+                }
+                vengine = tmpEngine;
+            }
+        }
+    }
+
     private VelocityContext getVelocityContext(ScriptContext ctx) {
         ctx.setAttribute("context", ctx, ScriptContext.ENGINE_SCOPE);
         ctx.setAttribute("vengine", vengine, ScriptContext.ENGINE_SCOPE);
@@ -134,6 +140,7 @@ public class VelocityScriptEngine extends AbstractScriptEngine {
     }
 
     private boolean isStringOutputMode(ScriptContext ctx) {
-        return ctx.getAttribute(STRING_OUTPUT_MODE) != null;
+        Object flag = ctx.getAttribute(STRING_OUTPUT_MODE);
+        return Boolean.TRUE.equals(flag);
     }
 }
