@@ -20,6 +20,7 @@
     <ant dir="pnuts/make" target="clean"/>
     <ant dir="scheme/make" target="clean"/>
     <ant dir="sleep/make" target="clean"/>
+    <ant dir="velocity/make" target="clean"/>
     <ant dir="xpath/make" target="clean"/>
     <ant dir="xslt/make" target="clean"/>
     <delete dir="${dist.dir}"/>
@@ -44,6 +45,7 @@
     <ant dir="pnuts/make"/>
     <ant dir="scheme/make"/>
     <ant dir="sleep/make"/>
+    <ant dir="velocity/make"/>
     <ant dir="xpath/make"/>
     <ant dir="xslt/make"/>
   </target>
@@ -271,6 +273,19 @@
     </copy>
     <copy file="sleep/README.TXT" todir="${sleep.dir}"/>
     <copy file="sleep/LICENSE.TXT" todir="${sleep.dir}"/>
+
+    <property name="velocity.dir" value="${dist.dir}/velocity"/>
+    <mkdir dir="${velocity.dir}/build"/>
+    <mkdir dir="${velocity.dir}/lib"/>
+    <mkdir dir="${velocity.dir}/bin"/>
+    <copy todir="${velocity.dir}/build">
+      <fileset file="velocity/build/*.jar"/>
+    </copy>
+    <copy todir="${velocity.dir}/bin">
+      <fileset file="velocity/bin/*"/>
+    </copy>
+    <copy file="velocity/README.TXT" todir="${velocity.dir}"/>
+    <copy file="velocity/LICENSE.TXT" todir="${velocity.dir}"/>
 
     <property name="xpath.dir" value="${dist.dir}/xpath"/>
     <mkdir dir="${xpath.dir}/build"/>
