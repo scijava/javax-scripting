@@ -38,7 +38,7 @@ public class SchemeScriptEngineFactory implements ScriptEngineFactory {
     }
 
     public String getEngineVersion() {
-        return "1.15.2";
+        return "1.15.3";
     }
 
     public List<String> getExtensions() {
