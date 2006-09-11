@@ -30,7 +30,6 @@
 package com.sun.script.velocity;
 
 import javax.script.*;
-import java.lang.reflect.*;
 import java.io.*;
 import java.util.Properties;
 import org.apache.velocity.*;
@@ -47,7 +46,7 @@ public class VelocityScriptEngine extends AbstractScriptEngine {
 
     public VelocityScriptEngine(ScriptEngineFactory factory) {
         this.factory = factory;
-    }
+    }   
 
     public VelocityScriptEngine() {
         this(null);
@@ -56,7 +55,7 @@ public class VelocityScriptEngine extends AbstractScriptEngine {
     public VelocityEngine getVelocityEngine() {
         return vengine;
     }
-
+	
     // ScriptEngine methods
     public Object eval(String str, ScriptContext ctx) 
                        throws ScriptException {	
@@ -104,12 +103,13 @@ public class VelocityScriptEngine extends AbstractScriptEngine {
         if (vengine == null) {
             synchronized (this) {
                 if (vengine != null) return;
+
+                Properties props = getVelocityProperties(ctx);
                 VelocityEngine tmpEngine = new VelocityEngine();
-                Object props = ctx.getAttribute(VELOCITY_PROPERTIES);
                 try {
-                    if (props instanceof Properties) {
-                        tmpEngine.init((Properties)props);
-                    } else {
+                    if (props != null) {
+                        tmpEngine.init(props);
+                    } else {                        
                         tmpEngine.init();
                     }
                 } catch (RuntimeException rexp) {
@@ -122,9 +122,8 @@ public class VelocityScriptEngine extends AbstractScriptEngine {
         }
     }
 
-    private VelocityContext getVelocityContext(ScriptContext ctx) {
+    private static VelocityContext getVelocityContext(ScriptContext ctx) {
         ctx.setAttribute("context", ctx, ScriptContext.ENGINE_SCOPE);
-        ctx.setAttribute("vengine", vengine, ScriptContext.ENGINE_SCOPE);
         Bindings globalScope = ctx.getBindings(ScriptContext.GLOBAL_SCOPE);        
         Bindings engineScope = ctx.getBindings(ScriptContext.ENGINE_SCOPE);
         if (globalScope != null) {
@@ -134,13 +133,35 @@ public class VelocityScriptEngine extends AbstractScriptEngine {
         }
     }
 
-    private String getFilename(ScriptContext ctx) {
+    private static String getFilename(ScriptContext ctx) {
         Object fileName = ctx.getAttribute(ScriptEngine.FILENAME);
         return fileName != null? fileName.toString() : "<unknown>";
     }
 
-    private boolean isStringOutputMode(ScriptContext ctx) {
+    private static boolean isStringOutputMode(ScriptContext ctx) {
         Object flag = ctx.getAttribute(STRING_OUTPUT_MODE);
         return Boolean.TRUE.equals(flag);
+    }
+
+    private static Properties getVelocityProperties(ScriptContext ctx) {
+        try {
+            Object props = ctx.getAttribute(VELOCITY_PROPERTIES);
+            if (props instanceof Properties) {
+                return (Properties) props;
+            } else {
+                String propsName = System.getProperty(VELOCITY_PROPERTIES);
+                if (propsName != null) {                    
+                    File propsFile = new File(propsName);
+                    if (propsFile.exists() && propsFile.canRead()) {
+                        Properties p = new Properties();
+                        p.load(new FileReader(propsFile));
+                        return p;
+                    }               
+                }
+            }
+        } catch (Exception exp) {
+            System.err.println(exp);
+        }            
+        return null;
     }
 }
