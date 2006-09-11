@@ -1,0 +1,7 @@
+#!/bin/sh
+#
+
+BSH="../lib/bsh-2.0b5.jar"
+CLASSPATH="$BSH:../build/bsh-engine.jar"
+java -cp "$CLASSPATH" bsh.Interpreter $*
+
