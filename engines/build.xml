@@ -5,6 +5,7 @@
 
   <target name="clean">
     <ant dir="browserjs/make" target="clean"/>
+    <ant dir="freemarker/make" target="clean"/>
     <ant dir="groovy/make" target="clean"/>
     <ant dir="jacl/make" target="clean"/>
     <ant dir="jaskell/make" target="clean"/>
@@ -30,6 +31,7 @@
 
   <target name="all" description="Builds sources and deployment jars">
     <ant dir="browserjs/make"/>
+    <ant dir="freemarker/make"/>
     <ant dir="groovy/make"/>
     <ant dir="jacl/make"/>
     <ant dir="jaskell/make"/>
@@ -70,6 +72,19 @@
     </copy>
     <copy file="ejs/README.TXT" todir="${ejs.dir}"/>
     <copy file="ejs/LICENSE.TXT" todir="${ejs.dir}"/>
+
+    <property name="freemarker.dir" value="${dist.dir}/freemarker"/>
+    <mkdir dir="${freemarker.dir}/build"/>
+    <mkdir dir="${freemarker.dir}/lib"/>
+    <mkdir dir="${freemarker.dir}/bin"/>
+    <copy todir="${freemarker.dir}/build">
+      <fileset file="freemarker/build/*.jar"/>
+    </copy>
+    <copy todir="${freemarker.dir}/bin">
+      <fileset file="freemarker/bin/*"/>
+    </copy>
+    <copy file="freemarker/README.TXT" todir="${freemarker.dir}"/>
+    <copy file="freemarker/LICENSE.TXT" todir="${freemarker.dir}"/>
 
     <property name="groovy.dir" value="${dist.dir}/groovy"/>
     <mkdir dir="${groovy.dir}/build"/>
