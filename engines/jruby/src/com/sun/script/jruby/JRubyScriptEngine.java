@@ -363,16 +363,7 @@ public class JRubyScriptEngine extends AbstractScriptEngine
     }
 
     private void setGlobalVariables(GlobalVariables globals) {
-        // !!HACK!! org.jruby.Ruby does not expose setGlobalVariables() method.
-        // Also, this class is final and therefore can not be extendeded.
-        // I am using reflection to set the field value!! 
-        try {
-            Field globalsField = Ruby.class.getDeclaredField("globalVariables");
-            globalsField.setAccessible(true);
-            globalsField.set(runtime, globals);
-        } catch (Exception exp) {
-            throw new RuntimeException(exp);
-        }
+        runtime.setGlobalVariables(globals);
     }
 
     private synchronized Object evalNode(Node node, ScriptContext ctx) 
