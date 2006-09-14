@@ -179,16 +179,13 @@ public class BshScriptEngine extends AbstractScriptEngine
 	 * Calls a procedure compiled during a previous script execution, which is
 	 * retained in the state of the <code>ScriptEngine<code>.
 	 *
-	 * @param name The name of the procedure to be called.
-	 * @param thiz If the procedure is a member  of a class defined in the script
-	 * and thiz is an instance of that class returned by a previous execution or
-	 * invocation, the named method is called through that instance. If classes are
-	 * not supported in the scripting language or if the procedure is not a member
-	 * function of any class, the argument must be <code>null</code>.
+	 * @param name The name of the script method to be called.
+	 * @param thiz thiz is an instance of the script class returned by a previous execution or
+	 * invocation, the named method is called through that instance.
 	 * @param args Arguments to pass to the procedure.  The rules for converting
 	 * the arguments to scripting variables are implementation-specific.
 	 *
-	 * @return The value returned by the procedure.  The rules for converting the
+	 * @return The value returned by the method.  The rules for converting the
 	 *         scripting variable returned by the procedure to a Java Object are
 	 *         implementation-specific.
 	 *
@@ -198,7 +195,7 @@ public class BshScriptEngine extends AbstractScriptEngine
 	 * types cannot be found.
 	 * @throws NullPointerException if method name is null.
 	 */
-	public Object invoke( Object thiz, String name, Object... args ) throws ScriptException, NoSuchMethodException
+	public Object invokeMethod( Object thiz, String name, Object... args ) throws ScriptException, NoSuchMethodException
 	{
 		if ( ! (thiz instanceof bsh.This) )
 			throw new ScriptException( "Illegal objec type: " +thiz.getClass() );
@@ -229,29 +226,29 @@ public class BshScriptEngine extends AbstractScriptEngine
 	}
 
 	/**
-	 * Same as invoke(Object, String, Object...) with <code>null</code> as the
-	 * first argument.  Used to call top-level procedures defined in scripts.
+	 * Used to call top-level procedures defined in scripts.
 	 *
+	 * @param name Name of the procedure
 	 * @param args Arguments to pass to the procedure
 	 *
 	 * @return The value returned by the procedure
 	 *
 	 * @throws javax.script.ScriptException if an error occurrs during invocation
 	 * of the method.
-	 * @throws NoSuchMethodException if method with given name or matching
+	 * @throws NoSuchMethodException if procedure with given name or matching
 	 * argument types cannot be found.
-	 * @throws NullPointerException if method name is null.
+	 * @throws NullPointerException if procedure name is null.
 	 */
-	public Object invoke( String name, Object... args )
+	public Object invokeFunction( String name, Object... args )
 		throws ScriptException, NoSuchMethodException
 	{
-		return invoke( getGlobal(), name, args );
+		return invokeMethod( getGlobal(), name, args );
 	}
 
 		/**
 	 * Returns an implementation of an interface using procedures compiled in the
 	 * interpreter. The methods of the interface may be implemented using the
-	 * <code>invoke</code> method.
+	 * <code>invokeFunction</code> method.
 	 *
 	 * @param clasz The <code>Class</code> object of the interface to return.
 	 *
@@ -276,7 +273,7 @@ public class BshScriptEngine extends AbstractScriptEngine
 	/**
 	 * Returns an implementation of an interface using member functions of a
 	 * scripting object compiled in the interpreter. The methods of the interface
-	 * may be implemented using invoke(Object, String, Object...) method.
+	 * may be implemented using invokeMethod(Object, String, Object...) method.
 	 *
 	 * @param thiz The scripting object whose member functions are used to
 	 * implement the methods of the interface.
