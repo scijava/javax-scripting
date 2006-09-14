@@ -4,6 +4,7 @@
   <property name="dist.dir" value="jsr223-engines"/>
 
   <target name="clean">
+    <ant dir="beanshell/make" target="clean"/>
     <ant dir="browserjs/make" target="clean"/>
     <ant dir="freemarker/make" target="clean"/>
     <ant dir="groovy/make" target="clean"/>
@@ -30,6 +31,7 @@
   </target>
 
   <target name="all" description="Builds sources and deployment jars">
+    <ant dir="beanshell/make"/>
     <ant dir="browserjs/make"/>
     <ant dir="freemarker/make"/>
     <ant dir="groovy/make"/>
@@ -55,6 +57,19 @@
   <target name="images" description="Prepare binary download bundle"
           depends="all">
     <mkdir dir="${dist.dir}"/>
+
+    <property name="beanshell.dir" value="${dist.dir}/beanshell"/>
+    <mkdir dir="${beanshell.dir}/build"/>
+    <mkdir dir="${beanshell.dir}/lib"/>
+    <mkdir dir="${beanshell.dir}/bin"/>
+    <copy todir="${beanshell.dir}/build">
+      <fileset file="beanshell/build/*.jar"/>
+    </copy>
+    <copy todir="${beanshell.dir}/bin">
+      <fileset file="beanshell/bin/*"/>
+    </copy>
+    <copy file="beanshell/README.txt" todir="${beanshell.dir}"/>
+    <copy file="beanshell/LICENSE.TXT" todir="${beanshell.dir}"/>
 
     <property name="browserjs.dir" value="${dist.dir}/browserjs"/>
     <mkdir dir="${browserjs.dir}/build"/>
