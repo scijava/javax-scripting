@@ -4,8 +4,8 @@ for BeanShell.
 
 This package requires BeanShell 2.0b5.
 
-This package currently requires Java 5 to compile, because the javax.script
-API uses generics. 
+This package currently requires Java 5 or above to compile, because the 
+javax.script API uses generics. 
 
 
 TODO:
