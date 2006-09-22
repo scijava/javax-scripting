@@ -71,15 +71,15 @@ public class GroovyScriptEngine
                                        new CompilerConfiguration());
     }
 
-    public Object eval(Reader reader, ScriptContext context) 
+    public Object eval(Reader reader, ScriptContext ctx) 
                        throws ScriptException {
-        return eval(readFully(reader), context);
+        return eval(readFully(reader), ctx);
     }
     
-    public Object eval(String script, ScriptContext context) 
+    public Object eval(String script, ScriptContext ctx) 
                        throws ScriptException {
         try {
-            return eval(getScriptClass(script), context);
+            return eval(getScriptClass(script), ctx);
         } catch (SyntaxException e) {
             throw new ScriptException(e.getMessage(), 
                                       e.getSourceLocator(), e.getLine());
@@ -149,24 +149,21 @@ public class GroovyScriptEngine
     }
 
     // package-privates
-    Object eval(Class scriptClass, ScriptContext context) throws ScriptException {
+    Object eval(Class scriptClass, final ScriptContext ctx) throws ScriptException {
         //add context to bindings
-        context.setAttribute("context", context, ScriptContext.ENGINE_SCOPE);
+        ctx.setAttribute("context", ctx, ScriptContext.ENGINE_SCOPE);
         
-        //direct output to context.getWriter
-        Writer writer = context.getWriter();
-        context.setAttribute("out", (writer instanceof PrintWriter) ? 
-                                  writer :
-                                  new PrintWriter(writer),
-                                  ScriptContext.ENGINE_SCOPE);
-
-        final ScriptContext ctx = context;
-
+        //direct output to ctx.getWriter
+        Writer writer = ctx.getWriter();
+        ctx.setAttribute("out", (writer instanceof PrintWriter) ? 
+                                 writer :
+                                 new PrintWriter(writer),
+                                 ScriptContext.ENGINE_SCOPE);
         /*
          * We use the following Binding instance so that global variable lookup
          * will be done in the current ScriptContext instance.
          */
-        Binding binding = new Binding(context.getBindings(ScriptContext.ENGINE_SCOPE)) {
+        Binding binding = new Binding(ctx.getBindings(ScriptContext.ENGINE_SCOPE)) {
                               @Override
                               public Object getVariable(String name) {
                                   synchronized (ctx) {
@@ -231,7 +228,7 @@ public class GroovyScriptEngine
                             try {
                                 return super.invokeMethod(object, name, args);
                             } catch (MissingMethodException mme) {
-                                return callGlobal(name, args);
+                                return callGlobal(name, args, ctx);
                             }
                         }
                         @Override
@@ -239,7 +236,7 @@ public class GroovyScriptEngine
                             try {
                                 return super.invokeStaticMethod(object, name, args);
                             } catch (MissingMethodException mme) {
-                                return callGlobal(name, args);
+                                return callGlobal(name, args, ctx);
                             }
                         }
                     });
@@ -289,12 +286,22 @@ public class GroovyScriptEngine
 
     // call the script global function of the given name
     private Object callGlobal(String name, Object[] args) {
+        return callGlobal(name, args, context);
+    }
+
+    private Object callGlobal(String name, Object[] args, ScriptContext ctx) {
         Closure closure = globalClosures.get(name);
         if (closure != null) {
             return closure.call(args);
         } else {
-            throw new MissingMethodException(name, getClass(), args);
+            // Look for closure valued variable in the 
+            // given ScriptContext. If available, call it.
+            Object value = ctx.getAttribute(name);
+            if (value instanceof Closure) {
+                return ((Closure)value).call(args);
+            } // else fall thru..
         }
+        throw new MissingMethodException(name, getClass(), args);     
     }
 
     // generate a unique name for top-level Script classes
