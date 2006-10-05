@@ -50,7 +50,7 @@ public class JRubyScriptEngineFactory implements ScriptEngineFactory {
     }
 
     public String getLanguageVersion() {
-        return "1.8.2";
+        return "1.8.4";
     }
 
     public String getMethodCallSyntax(String obj, String m, String... args) {
