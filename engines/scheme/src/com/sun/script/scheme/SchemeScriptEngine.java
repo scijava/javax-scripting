@@ -41,6 +41,7 @@ import sisc.interpreter.*;
 import sisc.io.*;
 import sisc.modules.s2j.*;
 import sisc.ser.*;
+import sisc.reader.SourceReader;
 
 public class SchemeScriptEngine extends AbstractScriptEngine 
         implements Invocable { 
@@ -287,8 +288,8 @@ public class SchemeScriptEngine extends AbstractScriptEngine
                         throws ScriptException {
         try {
             initContext(interp, ctx);
-            Value res = interp.evalInput(new ReaderInputPort(
-                                 new BufferedReader(reader)));
+            Value res = interp.evalInput(new SourceReader(
+                           new BufferedReader(reader), getFileName(ctx)));
             return scheme2java(res);
         } catch (Exception exp) {
             throw new ScriptException(exp);
@@ -394,4 +395,13 @@ public class SchemeScriptEngine extends AbstractScriptEngine
     private synchronized static String uniqueName() {
         return "com.sun.script.scheme.AppContext@" + Long.toString(sequence++);
     }    
+
+    private static String getFileName(ScriptContext ctx) {
+        Object name = ctx.getAttribute(ScriptEngine.FILENAME);
+        if (name instanceof String) {
+            return name.toString();
+        } else {
+            return "<unknown>";
+        }
+    }
 }
