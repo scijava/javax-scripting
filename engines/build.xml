@@ -17,6 +17,7 @@
     <ant dir="jexl/make" target="clean"/>
     <ant dir="jruby/make" target="clean"/>
     <ant dir="judo/make" target="clean"/>
+    <ant dir="juel/make" target="clean"/>
     <ant dir="jython/make" target="clean"/>
     <ant dir="ognl/make" target="clean"/>
     <ant dir="pnuts/make" target="clean"/>
@@ -44,6 +45,7 @@
     <ant dir="jexl/make"/>
     <ant dir="jruby/make"/>
     <ant dir="judo/make"/>
+    <ant dir="juel/make"/>
     <ant dir="jython/make"/>
     <ant dir="ognl/make"/>
     <ant dir="pnuts/make"/>
@@ -239,6 +241,19 @@
     <copy file="judo/README.TXT" todir="${judo.dir}"/>
     <copy file="judo/LICENSE.TXT" todir="${judo.dir}"/>
     
+    <property name="juel.dir" value="${dist.dir}/juel"/>
+    <mkdir dir="${juel.dir}/build"/>
+    <mkdir dir="${juel.dir}/lib"/>
+    <mkdir dir="${juel.dir}/bin"/>
+    <copy todir="${juel.dir}/build">
+      <fileset file="juel/build/*.jar"/>
+    </copy>
+    <copy todir="${juel.dir}/bin">
+      <fileset file="juel/bin/*"/>
+    </copy>
+    <copy file="juel/README.TXT" todir="${juel.dir}"/>
+    <copy file="juel/LICENSE.TXT" todir="${juel.dir}"/>
+
     <property name="jython.dir" value="${dist.dir}/jython"/>
     <mkdir dir="${jython.dir}/build"/>
     <mkdir dir="${jython.dir}/lib"/>
