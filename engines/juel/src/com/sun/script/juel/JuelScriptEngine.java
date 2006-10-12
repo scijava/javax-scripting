@@ -34,7 +34,7 @@ import java.lang.reflect.Modifier;
 import javax.script.*;
 import java.io.*;
 import javax.el.*;
-import de.odysseus.el.util.SimpleResolver;
+import de.odysseus.el.util.*;
 
 public class JuelScriptEngine extends AbstractScriptEngine 
         implements Compilable {
@@ -178,7 +178,7 @@ public class JuelScriptEngine extends AbstractScriptEngine
         }
 
         ELContext elContext = new ELContext() {
-            ELResolver resolver = new SimpleResolver();
+            ELResolver resolver = makeResolver();
             VariableMapper varMapper = new ScriptContextVariableMapper(ctx);
             FunctionMapper funcMapper = new ScriptContextFunctionMapper(ctx);
 
@@ -200,6 +200,16 @@ public class JuelScriptEngine extends AbstractScriptEngine
         ctx.setAttribute("elcontext", elContext, 
                          ScriptContext.ENGINE_SCOPE);
         return elContext;
+    }
+
+    private ELResolver makeResolver() {
+        CompositeELResolver chain = new CompositeELResolver();
+        chain.add(new ArrayELResolver());
+        chain.add(new ListELResolver());
+        chain.add(new MapELResolver());
+        chain.add(new ResourceBundleELResolver());
+        chain.add(new BeanELResolver());
+        return new SimpleResolver(chain);
     }
 
     private ValueExpression parse(String script, 
@@ -297,3 +307,4 @@ public class JuelScriptEngine extends AbstractScriptEngine
         }
     }
 }
+
