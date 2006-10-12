@@ -96,7 +96,10 @@ final class JythonScope extends PyObject {
             if (scope == -1) {
                 scope = ScriptContext.ENGINE_SCOPE;  
             } 
-            Object obj = JythonScriptEngine.py2java(value);
+            Object obj = value;
+            if (!(obj instanceof PyClass)) {
+                obj = JythonScriptEngine.py2java(value);
+            }
             ctx.setAttribute(key, obj, scope);
         }
     }
