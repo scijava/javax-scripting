@@ -146,10 +146,18 @@ public class JavaScriptEngine extends AbstractScriptEngine
         
         // search for class with main method
         Class c = findMainClass(classes);
-        if (c == null) {
-            throw new ScriptException("no main class definition found");
-        }
-        return c;
+        if (c != null) {
+            return c;
+        } else {
+            // if class with "main" method, then
+            // return first class
+            Iterator<Class> itr = classes.iterator();
+            if (itr.hasNext()) {
+                return itr.next();
+            } else {
+                return null;
+            }
+        } 
     }
     
     private static Class findMainClass(Iterable<Class> classes) {
@@ -252,7 +260,11 @@ public class JavaScriptEngine extends AbstractScriptEngine
             return ctx.getAttribute(CLASSPATH).toString();
         } else {
             // look for "com.sun.script.java.classpath"
-            return System.getProperty(SYSPROP_PREFIX + CLASSPATH);
+            String res = System.getProperty(SYSPROP_PREFIX + CLASSPATH);
+            if (res == null) {
+                res = System.getProperty("java.class.path");
+            }
+            return res;
         }
     }
 
@@ -283,6 +295,9 @@ public class JavaScriptEngine extends AbstractScriptEngine
                             throws ScriptException {
         // JSR-223 requirement
         ctx.setAttribute("context", ctx, ScriptContext.ENGINE_SCOPE);
+        if (clazz == null) {
+            return null;
+        }
         try {            
             boolean isPublicClazz = Modifier.isPublic(clazz.getModifiers());
 
@@ -299,17 +314,18 @@ public class JavaScriptEngine extends AbstractScriptEngine
 
             // find the main method
             Method mainMethod = findMainMethod(clazz);
-            assert mainMethod != null : "should not happen, no main?";
-            if (! isPublicClazz) {
-                // try to relax access
-                mainMethod.setAccessible(true);
-            }        
+            if (mainMethod != null) {
+                if (! isPublicClazz) {
+                    // try to relax access
+                    mainMethod.setAccessible(true);
+                }        
 
-            // get "command line" args for the main method
-            String[] args = getArguments(ctx);
+                // get "command line" args for the main method
+                String[] args = getArguments(ctx);
 
-            // call main method
-            mainMethod.invoke(null, new Object[] { args });
+                // call main method
+                mainMethod.invoke(null, new Object[] { args });
+            }
 
             // return main class as eval's result
             return clazz;
