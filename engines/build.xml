@@ -11,6 +11,7 @@
     <ant dir="jacl/make" target="clean"/>
     <ant dir="jaskell/make" target="clean"/>
     <ant dir="java/make" target="clean"/>
+    <ant dir="javascript/make" target="clean"/>
     <ant dir="jawk/make" target="clean"/>
     <ant dir="jelly/make" target="clean"/>
     <ant dir="jep/make" target="clean"/>
@@ -39,6 +40,7 @@
     <ant dir="jacl/make"/>
     <ant dir="jaskell/make"/>
     <ant dir="java/make"/>
+    <ant dir="javascript/make"/>
     <ant dir="jawk/make"/>
     <ant dir="jelly/make"/>
     <ant dir="jep/make"/>
@@ -154,6 +156,19 @@
     </copy>
     <copy file="java/README.TXT" todir="${java.dir}"/>
     <copy file="java/LICENSE.TXT" todir="${java.dir}"/>
+
+    <property name="javascript.dir" value="${dist.dir}/javascript"/>
+    <mkdir dir="${javascript.dir}/build"/>
+    <mkdir dir="${javascript.dir}/lib"/>
+    <mkdir dir="${javascript.dir}/bin"/>
+    <copy todir="${javascript.dir}/build">
+      <fileset file="javascript/build/*.jar"/>
+    </copy>
+    <copy todir="${javascript.dir}/bin">
+      <fileset file="javascript/bin/*"/>
+    </copy>
+    <copy file="javascript/README.TXT" todir="${javascript.dir}"/>
+    <copy file="javascript/LICENSE.TXT" todir="${javascript.dir}"/>
 
     <property name="jawk.dir" value="${dist.dir}/jawk"/>
     <mkdir dir="${jawk.dir}/build"/>
