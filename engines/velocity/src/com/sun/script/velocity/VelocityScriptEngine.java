@@ -154,7 +154,7 @@ public class VelocityScriptEngine extends AbstractScriptEngine {
                     File propsFile = new File(propsName);
                     if (propsFile.exists() && propsFile.canRead()) {
                         Properties p = new Properties();
-                        p.load(new FileReader(propsFile));
+                        p.load(new FileInputStream(propsFile));
                         return p;
                     }               
                 }

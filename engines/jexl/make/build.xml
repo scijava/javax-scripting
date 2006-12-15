@@ -21,6 +21,7 @@
   </target>
 
   <path id="javac.classpath">
+    <pathelement path="${jsr223.jar}" />
     <pathelement path="${lib.dir}/commons-jexl-1.0.jar" />
 
   </path>

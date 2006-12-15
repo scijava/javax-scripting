@@ -11,10 +11,13 @@
   <property name="dist.jar" value="${build.dir}/${app.name}.jar"/>
   <property name="classes.dir"  value="${build.dir}/classes"/>
 
+  <path id="javac.classpath">
+     <pathelement path="${jsr223.jar}" />
+  </path>
+
   <target name="prepare">
     <mkdir dir="${classes.dir}"/>
   </target>
-
 
   <target name="clean">
      <delete dir="${build.dir}"/>
@@ -25,6 +28,7 @@
     <javac srcdir="${src.dir}"
            destdir="${classes.dir}"
            debug="on" deprecation="on">
+      <classpath refid="javac.classpath"/>
     </javac>
     <copy todir="${classes.dir}/META-INF/services">
       <fileset dir="${src.dir}/META-INF/services"/>

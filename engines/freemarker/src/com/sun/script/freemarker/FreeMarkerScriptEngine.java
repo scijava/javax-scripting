@@ -152,13 +152,19 @@ public class FreeMarkerScriptEngine extends AbstractScriptEngine {
                     File propsFile = new File(propsName);
                     if (propsFile.exists() && propsFile.canRead()) {
                         props = new Properties();
-                        props.load(new FileReader(propsFile));
+                        props.load(new FileInputStream(propsFile));
                     }               
                 }
             }
             if (props != null) {
-                Set<String> keys = props.stringPropertyNames();
-                for (String key : keys) {
+                Set<Object> keys = props.keySet();
+                for (Object obj : keys) {
+                    String key;
+                    if (obj instanceof String) {
+                        key = (String) obj;
+                    } else {
+                        continue;
+                    }
                     try {
                         conf.setSetting(key, props.get(key).toString());
                     } catch (TemplateException te) {

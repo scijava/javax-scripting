@@ -10,16 +10,22 @@
   <property name="dist.jar" value="${build.dir}/${app.name}.jar"/>
   <property name="classes.dir"  value="${build.dir}/classes"/>
 
+  <target name="check.jsr199">
+     <condition property="jsr199.available">
+       <available classname="javax.tools.JavaCompiler"/>
+     </condition>
+  </target>
+
   <target name="prepare">
     <mkdir dir="${classes.dir}"/>
   </target>
-
 
   <target name="clean">
      <delete dir="${build.dir}"/>
   </target>
 
-  <target name="compile" depends="prepare" description="Compiles the sources">
+  <target name="compile" if="jsr199.available"
+    depends="prepare" description="Compiles the sources">
     <javac srcdir="${src.dir}"
            destdir="${classes.dir}"
            debug="on" deprecation="on">
@@ -29,11 +35,13 @@
     </copy>
   </target>
 
-  <target name="deploy" depends="compile" description="Creates a deployment bundle">
+  <target name="deploy" if="jsr199.available"
+    depends="compile" description="Creates a deployment bundle">
     <jar jarfile="${dist.jar}"
          basedir="${classes.dir}"/>
   </target>
 
-  <target name="all" depends="deploy" description="Builds sources and deployment jar"/>
+  <target name="all" depends="check.jsr199, deploy" 
+          description="Builds sources and deployment jar"/>
 
 </project>
