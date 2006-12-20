@@ -3,6 +3,19 @@
 <project name="Build All Engines" default="all" basedir=".">
   <property name="dist.dir" value="jsr223-engines"/>
 
+  <target name="check.jsr223">
+  <available 
+    classname="javax.script.ScriptEngine"
+    property="script.engine.present"
+    classpath="${jsr223.jar}"
+  />
+  <fail unless="script.engine.present">
+Cannot build!
+To build engines you need either JDK 6, download it from http://java.sun.com
+Or you need to provide path to the scriptinf API jar file using -Djsr223.jar,
+download from: http://jcp.org/aboutJava/communityprocess/final/jsr223/index.html  </fail>
+  </target>
+
   <target name="clean">
     <ant dir="beanshell/make" target="clean"/>
     <ant dir="browserjs/make" target="clean"/>
@@ -32,7 +45,8 @@
     <delete file="${dist.dir}.zip"/>
   </target>
 
-  <target name="all" description="Builds sources and deployment jars">
+  <target name="all" depends="check.jsr223"
+    description="Builds sources and deployment jars">
     <ant dir="beanshell/make"/>
     <ant dir="browserjs/make"/>
     <ant dir="freemarker/make"/>
