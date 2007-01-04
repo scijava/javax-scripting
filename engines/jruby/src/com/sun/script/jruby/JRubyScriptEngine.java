@@ -180,7 +180,7 @@ public class JRubyScriptEngine extends AbstractScriptEngine
         }
         IRubyObject result = JavaUtil.convertJavaToRuby(runtime, value);
         if (result instanceof JavaObject) {
-            return runtime.getModule("JavaUtilities").callMethod("wrap", result);
+            return runtime.getModule("JavaUtilities").callMethod(runtime.getCurrentContext(), "wrap", result);
         }
         return result;
     }   
@@ -194,7 +194,7 @@ public class JRubyScriptEngine extends AbstractScriptEngine
             if (filename == null) {
                 filename = "<unknown>";
             }
-            return runtime.parse(script, filename);
+            return runtime.parse(script, filename, null);
         } catch (Exception exp) {
             throw new ScriptException(exp);
         } finally {
@@ -213,7 +213,7 @@ public class JRubyScriptEngine extends AbstractScriptEngine
             if (filename == null) {
                 filename = "<unknown>";
             }
-            return runtime.parse(reader, filename);
+            return runtime.parse(reader, filename, null);
         } catch (Exception exp) {
             throw new ScriptException(exp);
         } finally {
@@ -409,11 +409,11 @@ public class JRubyScriptEngine extends AbstractScriptEngine
             for (int i = 0; i < rubyArgs.length; i++) {
                 IRubyObject tmp = rubyArgs[i];
                 if (tmp instanceof JavaObject) {
-                    rubyArgs[i] = javaUtilities.callMethod("wrap", tmp);
+                    rubyArgs[i] = javaUtilities.callMethod(runtime.getCurrentContext(), "wrap", tmp);
                 }
             }
 
-            IRubyObject result = rubyRecv.callMethod(method, rubyArgs);
+            IRubyObject result = rubyRecv.callMethod(runtime.getCurrentContext(), method, rubyArgs);
             return rubyToJava(result, returnType);
         } catch (Exception exp) {
             throw new ScriptException(exp);
