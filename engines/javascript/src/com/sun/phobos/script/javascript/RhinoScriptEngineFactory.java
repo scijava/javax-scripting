@@ -68,7 +68,7 @@ public class RhinoScriptEngineFactory extends ScriptEngineFactoryBase {
         } else if (key.equals(ScriptEngine.ENGINE)) {
             return "Mozilla Rhino";
         } else if (key.equals(ScriptEngine.ENGINE_VERSION)) {
-            return "1.6 release 4";
+            return "1.6R5";
         } else if (key.equals(ScriptEngine.LANGUAGE)) {
             return "ECMAScript";
         } else if (key.equals(ScriptEngine.LANGUAGE_VERSION)) {
