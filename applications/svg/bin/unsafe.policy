@@ -1,0 +1,6 @@
+
+// insanely unsafe policy! to be used only for playing/testing!!
+
+grant {
+   permission java.security.AllPermission;
+};
