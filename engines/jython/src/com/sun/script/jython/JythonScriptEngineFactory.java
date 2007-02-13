@@ -38,7 +38,7 @@ public class JythonScriptEngineFactory implements ScriptEngineFactory {
     }
 
     public String getEngineVersion() {
-        return "2.1";
+        return "2.2b1";
     }
 
     public List<String> getExtensions() {
@@ -50,7 +50,7 @@ public class JythonScriptEngineFactory implements ScriptEngineFactory {
     }
 
     public String getLanguageVersion() {
-        return "2.1";
+        return "2.2b1";
     }
 
     public String getMethodCallSyntax(String obj, String m, String... args) {
