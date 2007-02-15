@@ -134,7 +134,7 @@ public class PnutsScriptEngineFactory implements ScriptEngineFactory {
      * the scripting language.
      */
 	public String getMethodCallSyntax(String obj, String m, String... args){
-		StringBuffer sbuf = new StringBuffer();
+		StringBuilder sbuf = new StringBuilder();
 		sbuf.append(obj);
 		sbuf.append(".");
 		sbuf.append(m);
@@ -164,7 +164,7 @@ public class PnutsScriptEngineFactory implements ScriptEngineFactory {
      * @return The string used to display
      */
     public String getOutputStatement(String toDisplay) {
-	StringBuffer sbuf = new StringBuffer();
+	StringBuilder sbuf = new StringBuilder();
 	sbuf.append("println(\"");
 	int len = toDisplay.length();
 	for (int i = 0; i < len; i++){
@@ -204,7 +204,7 @@ public class PnutsScriptEngineFactory implements ScriptEngineFactory {
      * @return The Program
      */
     public String getProgram(String... statements){
-	StringBuffer sbuf = new StringBuffer();
+	StringBuilder sbuf = new StringBuilder();
 	for (int i = 0; i < statements.length; i++){
 	    sbuf.append(statements[i]);
 	    sbuf.append("\n");

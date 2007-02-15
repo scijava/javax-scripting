@@ -54,7 +54,7 @@ public class OgnlScriptEngineFactory implements ScriptEngineFactory {
     }
 
     public String getMethodCallSyntax(String obj, String m, String... args) {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         if (obj.charAt(0) != '#') {
             buf.append('#');
         }
@@ -82,7 +82,7 @@ public class OgnlScriptEngineFactory implements ScriptEngineFactory {
     }
 
     public String getOutputStatement(String toDisplay) {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append("@java.lang.System@out.print(\"");
         int len = toDisplay.length();
         for (int i = 0; i < len; i++) {
@@ -122,7 +122,7 @@ public class OgnlScriptEngineFactory implements ScriptEngineFactory {
     } 
 
     public String getProgram(String... statements) {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         if (statements.length != 0) {
             int i = 0;
             for (; i < statements.length - 1; i++) {

@@ -102,7 +102,7 @@ public class JaskellScriptEngineFactory implements ScriptEngineFactory {
     }    
     
     public String getOutputStatement(String toDisplay) {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append("print(\"");
         int len = toDisplay.length();
         for (int i = 0; i < len; i++) {
@@ -124,7 +124,7 @@ public class JaskellScriptEngineFactory implements ScriptEngineFactory {
     }    
     
     public String getProgram(String... statements) {
-        StringBuffer ret = new StringBuffer();
+        StringBuilder ret = new StringBuilder();
         int len = statements.length;
         ret.append("let ");
         for (int i = 0; i < len; i++) {

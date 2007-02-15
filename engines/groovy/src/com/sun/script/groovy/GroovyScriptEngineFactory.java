@@ -109,7 +109,7 @@ public class GroovyScriptEngineFactory implements ScriptEngineFactory {
     }    
     
     public String getOutputStatement(String toDisplay) {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append("println(\"");
         int len = toDisplay.length();
         for (int i = 0; i < len; i++) {
@@ -131,7 +131,7 @@ public class GroovyScriptEngineFactory implements ScriptEngineFactory {
     }    
     
     public String getProgram(String... statements) {
-        StringBuffer ret = new StringBuffer();
+        StringBuilder ret = new StringBuilder();
         int len = statements.length;
         for (int i = 0; i < len; i++) {
             ret.append(statements[i]);

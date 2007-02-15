@@ -313,7 +313,7 @@ public class SleepScriptEngine extends AbstractScriptEngine
 
     private String readFully(Reader reader) throws ScriptException { 
         char[] arr = new char[8*1024]; // 8K at a time
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         int numChars;
         try {
             while ((numChars = reader.read(arr, 0, arr.length)) > 0) {

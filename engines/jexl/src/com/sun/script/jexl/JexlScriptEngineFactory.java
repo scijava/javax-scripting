@@ -55,7 +55,7 @@ public class JexlScriptEngineFactory implements ScriptEngineFactory {
     }
 
     public String getMethodCallSyntax(String obj, String m, String... args) {
-        StringBuffer buf = new StringBuffer();       
+        StringBuilder buf = new StringBuilder();       
         buf.append(obj);
         buf.append(".");
         buf.append(m);

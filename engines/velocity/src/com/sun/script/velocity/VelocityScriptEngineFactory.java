@@ -54,7 +54,7 @@ public class VelocityScriptEngineFactory implements ScriptEngineFactory {
     }
 
     public String getMethodCallSyntax(String obj, String m, String... args) {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append("${");
         buf.append(obj);
         buf.append(".");
@@ -81,7 +81,7 @@ public class VelocityScriptEngineFactory implements ScriptEngineFactory {
     }
 
     public String getOutputStatement(String toDisplay) {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         int len = toDisplay.length();
         buf.append("${context.getWriter().write(\"");
         for (int i = 0; i < len; i++) {
@@ -121,7 +121,7 @@ public class VelocityScriptEngineFactory implements ScriptEngineFactory {
     } 
 
     public String getProgram(String... statements) {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         for (int i = 0; i < statements.length; i++) {
             buf.append(statements[i]);
             buf.append("\n");

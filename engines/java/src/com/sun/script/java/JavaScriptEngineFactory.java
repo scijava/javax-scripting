@@ -57,7 +57,7 @@ public class JavaScriptEngineFactory implements ScriptEngineFactory {
     }
 
     public String getMethodCallSyntax(String obj, String m, String... args) {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append(obj);
         buf.append(".");
         buf.append(m);
@@ -82,7 +82,7 @@ public class JavaScriptEngineFactory implements ScriptEngineFactory {
     }
 
     public String getOutputStatement(String toDisplay) {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append("System.out.print(\"");
         int len = toDisplay.length();
         for (int i = 0; i < len; i++) {
@@ -125,7 +125,7 @@ public class JavaScriptEngineFactory implements ScriptEngineFactory {
         // we generate a Main class with main method
         // that contains all the given statements
 
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append("class ");
         buf.append(getClassName());
         buf.append(" {\n");

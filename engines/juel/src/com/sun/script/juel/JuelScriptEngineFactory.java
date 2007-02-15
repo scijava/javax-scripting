@@ -66,7 +66,7 @@ public class JuelScriptEngineFactory implements ScriptEngineFactory {
     }
 
     public String getOutputStatement(String toDisplay) {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append("out:print(\"");
         int len = toDisplay.length();
         for (int i = 0; i < len; i++) {
@@ -106,7 +106,7 @@ public class JuelScriptEngineFactory implements ScriptEngineFactory {
     } 
 
     public String getProgram(String... statements) {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         if (statements.length != 0) {
             for (int i = 0; i < statements.length; i++) {
                 buf.append("${");

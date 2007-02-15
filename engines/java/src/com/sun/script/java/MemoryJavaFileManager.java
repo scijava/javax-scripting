@@ -127,7 +127,7 @@ public final class MemoryJavaFileManager extends ForwardingJavaFileManager {
             return file.toURI();
         } else {
             try {
-                final StringBuffer newUri = new StringBuffer();
+                final StringBuilder newUri = new StringBuilder();
                 newUri.append("mfm:///");
                 newUri.append(name.replace('.', '/'));
                 if(name.endsWith(EXT)) newUri.replace(newUri.length() - EXT.length(), newUri.length(), EXT);

@@ -71,7 +71,7 @@ public class BshScriptEngineFactory implements
 		// method, which constructs a method signature from arg *types*.  Maybe
 		// combine these later.
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 		if ( objectName != null )
 			sb.append( objectName + "." );
 		sb.append( methodName + "(" );
@@ -90,7 +90,7 @@ public class BshScriptEngineFactory implements
 
     public String getProgram( String ... statements )
 	{
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		for( int i=0; i< statements.length; i++ )
 		{
 			sb.append( statements[i] );
