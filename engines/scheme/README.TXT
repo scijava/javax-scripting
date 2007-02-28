@@ -1,6 +1,6 @@
 This is JSR-223 script engine for SISC - Java implementation of Scheme language.
-SISC is available for download at http://sisc.sourceforge.net/. We have
-built and tested with SISC version 1.16.5.
+SISC is available for download at http://sisc-scheme.org/. We have
+built and tested with SISC version 1.16.6.
 
 Note on accessing jsr-223 Binding variables from Scheme:
 
