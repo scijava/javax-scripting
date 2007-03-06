@@ -48,7 +48,7 @@ public class JRubyScriptEngine extends AbstractScriptEngine
 
     // my factory, may be null
     private ScriptEngineFactory factory;
-    private IRuby runtime;
+    private Ruby runtime;
    
     public JRubyScriptEngine() {
         init(System.getProperty("com.sun.script.jruby.loadpath"));
@@ -170,7 +170,7 @@ public class JRubyScriptEngine extends AbstractScriptEngine
 
     private Object rubyToJava(IRubyObject value, Class type) {
         return JavaUtil.convertArgument(
-                 Java.ruby_to_java(runtime.getObject(), value), 
+                 Java.ruby_to_java(value, value, Block.NULL_BLOCK), 
                  type);
     }
 
@@ -254,15 +254,9 @@ public class JRubyScriptEngine extends AbstractScriptEngine
                     assert name != null;
                     assert name.startsWith("$");
                     synchronized (ctx) {
-                        boolean defined = ctx.getAttributesScope(name) != -1;
-                        if (defined) {
-                            return true;
-                        } else {
-                            // skip '$' and check
-                            String modifiedName = name.substring(1);
-                            defined = ctx.getAttributesScope(modifiedName) != -1;
-                            return defined ? true : parent.isDefined(name);
-                        }
+                        String modifiedName = name.substring(1);
+                        boolean defined = ctx.getAttributesScope(modifiedName) != -1;
+                        return defined ? true : parent.isDefined(name);
                     }
                 }
 
@@ -291,17 +285,13 @@ public class JRubyScriptEngine extends AbstractScriptEngine
                     assert name != null;
                     assert name.startsWith("$");
 
-                    String modifiedName = name;
                     synchronized (ctx) {
-                        int scope = ctx.getAttributesScope(name);
+                        // skip '$' and try
+                        String modifiedName = name.substring(1);
+                        int scope = ctx.getAttributesScope(modifiedName);
                         if (scope == -1) {
-                            // skip '$' and try
-                            modifiedName = name.substring(1);
-                            scope = ctx.getAttributesScope(modifiedName);
-                            if (scope == -1) {
-                                return parent.get(name);
-                            }
-                        } 
+                            return parent.get(name);
+                        }
 
                         Object obj = ctx.getAttribute(modifiedName, scope);
                         if (obj instanceof IAccessor) {
@@ -321,15 +311,11 @@ public class JRubyScriptEngine extends AbstractScriptEngine
                     }
 
                     synchronized (ctx) {
-                        int scope = ctx.getAttributesScope(name);
-                        String modifiedName = name;
+                        // skip '$' and try
+                        String modifiedName = name.substring(1);
+                        int scope = ctx.getAttributesScope(modifiedName);
                         if (scope == -1) {
-                            // skip '$' and try
-                            modifiedName = name.substring(1);
-                            scope = ctx.getAttributesScope(modifiedName);
-                            if (scope == -1) {
-                                scope = ScriptContext.ENGINE_SCOPE;
-                            }
+                            scope = ScriptContext.ENGINE_SCOPE;
                         }
                         IRubyObject oldValue = get(name);
                         Object obj = ctx.getAttribute(modifiedName, scope);

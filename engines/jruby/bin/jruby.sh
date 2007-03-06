@@ -1,1 +1,1 @@
-jrunscript -Dcom.sun.script.jruby.loadpath=../lib/jruby.jar -cp ../build/jruby-engine.jar:../lib/jruby.jar -l jruby $*
+jrunscript -Dcom.sun.script.jruby.loadpath=../lib/jruby.jar -cp ../build/jruby-engine.jar:../lib/jruby.jar:../lib/asm-2.2.3.jar -l jruby $*

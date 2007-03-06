@@ -38,7 +38,7 @@ public class JRubyScriptEngineFactory implements ScriptEngineFactory {
     }
 
     public String getEngineVersion() {
-        return "0.9.2";
+        return "0.9.8";
     }
 
     public List<String> getExtensions() {
@@ -55,6 +55,7 @@ public class JRubyScriptEngineFactory implements ScriptEngineFactory {
 
     public String getMethodCallSyntax(String obj, String m, String... args) {
         StringBuilder buf = new StringBuilder();
+        buf.append('$');
         buf.append(obj);
         buf.append('.');
         buf.append(m);
@@ -62,10 +63,12 @@ public class JRubyScriptEngineFactory implements ScriptEngineFactory {
         if (args.length != 0) {
             int i = 0;
             for (; i < args.length - 1; i++) {
+                buf.append('$');
                 buf.append(args[i] + ", ");
             }
+            buf.append('$');
             buf.append(args[i]);
-        }        
+        }
         buf.append(')');
         return buf.toString();
     }
