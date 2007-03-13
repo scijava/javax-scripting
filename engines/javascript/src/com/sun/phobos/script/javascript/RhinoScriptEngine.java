@@ -282,7 +282,6 @@ public class RhinoScriptEngine extends AbstractScriptEngine
         }
     }
 
-    // RRC - not used
     private static final String printSource = 
             "function print(str) {                         \n" +
             "    if (typeof(str) == 'undefined') {         \n" +
@@ -308,8 +307,6 @@ public class RhinoScriptEngine extends AbstractScriptEngine
         // define "context" variable in the new scope
         newScope.put("context", newScope, ctxt);
        
-        /*
-        // RRC - save some time and don't define print
         // define "print" function in the new scope
         Context cx = enterContext();
         try {
@@ -317,7 +314,6 @@ public class RhinoScriptEngine extends AbstractScriptEngine
         } finally {
             cx.exit();
         }
-        */
         return newScope;
     }
     
