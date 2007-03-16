@@ -38,7 +38,7 @@ public class VelocityScriptEngineFactory implements ScriptEngineFactory {
     }
 
     public String getEngineVersion() {
-        return "1.4";
+        return "1.5";
     }
 
     public List<String> getExtensions() {
@@ -50,7 +50,7 @@ public class VelocityScriptEngineFactory implements ScriptEngineFactory {
     }
 
     public String getLanguageVersion() {
-        return "1.4";
+        return "1.5";
     }
 
     public String getMethodCallSyntax(String obj, String m, String... args) {
