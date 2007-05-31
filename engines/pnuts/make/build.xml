@@ -11,6 +11,7 @@
   <property name="dist.jar" value="${build.dir}/${app.name}.jar"/>
   <property name="classes.dir"  value="${build.dir}/classes"/>
   <property name="resource.dir" value="../resources"/>
+  <property file="build.properties"/>
 
   <target name="prepare">
     <mkdir dir="${classes.dir}"/>
@@ -32,14 +33,24 @@
            debug="on" deprecation="on">
       <classpath refid="javac.classpath" />
     </javac>
-    <copy todir="${classes.dir}/META-INF/services">
-      <fileset dir="${resource.dir}"/>
-    </copy>
   </target>
 
   <target name="deploy" depends="compile" description="Creates a deployment bundle">
-    <jar jarfile="${dist.jar}"
-         basedir="${classes.dir}"/>
+     <tstamp>
+       <format property="build.number" pattern="yyyyMMddHHmmss" locale="en"/>
+     </tstamp>
+     <jar jarfile="${dist.jar}">
+       <manifest>
+         <attribute name="Specification-Title" value="${specification.title}"/>
+         <attribute name="Specification-Version" value="${specification.version}"/>
+         <attribute name="Specification-Vendor" value="${specification.vendor}"/>
+         <attribute name="Implementation-Title" value="${implementation.title}"/>
+         <attribute name="Implementation-Version" value="${build.number}"/>
+         <attribute name="Implementation-Vendor" value="${implementation.vendor}"/>
+       </manifest>
+       <fileset dir="${resource.dir}"/>
+       <fileset dir="${classes.dir}"/>
+     </jar> 
   </target>
 
   <target name="all" depends="deploy" description="Builds sources and deployment jar"/>
