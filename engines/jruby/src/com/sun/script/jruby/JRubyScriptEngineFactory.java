@@ -38,7 +38,7 @@ public class JRubyScriptEngineFactory implements ScriptEngineFactory {
     }
 
     public String getEngineVersion() {
-        return "0.9.8";
+        return "1.0.0RC2";
     }
 
     public List<String> getExtensions() {
