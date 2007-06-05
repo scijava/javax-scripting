@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Arrays;
 import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngine;
+import pnuts.lang.Pnuts;
 
 public class PnutsScriptEngineFactory implements ScriptEngineFactory {
 
@@ -59,11 +60,11 @@ public class PnutsScriptEngineFactory implements ScriptEngineFactory {
 	}
 
 	public String getEngineVersion(){
-		return "1.0";
+		return PnutsScriptEngine.class.getPackage().getSpecificationVersion();
 	}
 
 	public String getLanguageVersion(){
-		return "1.1";
+		return Pnuts.class.getPackage().getSpecificationVersion();
 	}
 
 	public String getLanguageName(){
@@ -72,16 +73,16 @@ public class PnutsScriptEngineFactory implements ScriptEngineFactory {
 
 
     public Object getParameter(String s){
-	if (s.equals("javax.script.name")){
-	    return "Pnuts";
-	} else if (s.equals("javax.script.engine")){
-	    return "Pnuts Script Engine";
-	} else if (s.equals("javax.script.engine_version")){
-	    return "1.0";
-	} else if (s.equals("javax.script.language")){
-	    return "Pnuts";
-	} else if (s.equals("javax.script.language_version")){
-	    return "1.1beta2";
+	if (s.equals(ScriptEngine.NAME)){
+	    return getEngineVersion();
+	} else if (s.equals(ScriptEngine.ENGINE)){
+	    return getEngineName();
+	} else if (s.equals(ScriptEngine.ENGINE_VERSION)){
+	    return getEngineVersion();
+	} else if (s.equals(ScriptEngine.LANGUAGE)){
+	    return getLanguageName();
+	} else if (s.equals(ScriptEngine.LANGUAGE_VERSION)){
+	    return getLanguageVersion();
 	} else if (s.equals("THREADING")){
 	    return "MULTITHREADED";
 	} else {

@@ -14,6 +14,7 @@ import javax.script.ScriptContext;
 import javax.script.ScriptException;
 import javax.script.Bindings;
 import pnuts.lang.Executable;
+import pnuts.lang.PnutsException;
 
 public class PnutsCompiledScript extends CompiledScript {
 
@@ -48,7 +49,18 @@ public class PnutsCompiledScript extends CompiledScript {
 		} else {
 			psc = new PnutsScriptContext(context);
 		}
-		return executable.run(psc.getPnutsContext());
+		try {
+		    return executable.run(psc.getPnutsContext());
+		} catch (PnutsException e1){
+			Throwable t = e1.getThrowable();
+			if (t instanceof Exception){
+				throw new ScriptException((Exception)t);
+			} else {
+				throw (Error)t;
+			}
+		} catch (Exception e2){
+			throw new ScriptException(e2);
+		}
 	}
 
 	/**
