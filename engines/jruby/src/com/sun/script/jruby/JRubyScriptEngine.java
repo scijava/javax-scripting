@@ -194,7 +194,7 @@ public class JRubyScriptEngine extends AbstractScriptEngine
             if (filename == null) {
                 filename = "<unknown>";
             }
-            return runtime.parse(script, filename, null);
+            return runtime.parse(script, filename, null, 0);
         } catch (Exception exp) {
             throw new ScriptException(exp);
         } finally {
@@ -213,7 +213,7 @@ public class JRubyScriptEngine extends AbstractScriptEngine
             if (filename == null) {
                 filename = "<unknown>";
             }
-            return runtime.parse(reader, filename, null);
+            return runtime.parse(reader, filename, null, 0);
         } catch (Exception exp) {
             throw new ScriptException(exp);
         } finally {
