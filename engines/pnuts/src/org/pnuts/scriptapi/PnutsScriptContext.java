@@ -129,6 +129,7 @@ public class PnutsScriptContext implements ScriptContext {
 	}
 	if (bindings != null){
 	    bindingsPackage.setBindings(bindings, scope);
+	    context.setCurrentPackage(bindingsPackage);
 	}
     }
 

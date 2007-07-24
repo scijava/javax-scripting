@@ -1,7 +1,7 @@
 /*
- * @(#)BindingsPackage.java 1.5 05/06/14
+ * BindingsPackage.java
  *
- * Copyright (c) 2005 Sun Microsystems, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2007 Sun Microsystems, Inc. All Rights Reserved.
  *
  * See the file "LICENSE.txt" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -21,6 +21,7 @@ public class BindingsPackage extends Package {
     private Package enginePackage;
 
     public BindingsPackage(){
+	super(null, null);
     }
 
     public void setBindings(Bindings ns, int scope){
