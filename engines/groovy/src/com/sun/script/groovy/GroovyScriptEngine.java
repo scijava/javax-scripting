@@ -60,7 +60,6 @@ public class GroovyScriptEngine
     private static int counter;
  
     static {
-        MetaClass.setUseReflection(true);
         counter = 0;
     }
     

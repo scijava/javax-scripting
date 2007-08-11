@@ -29,10 +29,13 @@
  */
 
 package com.sun.script.groovy;
+
 import javax.script.*;
 import java.util.*;
 
 public class GroovyScriptEngineFactory implements ScriptEngineFactory {
+	
+	private static String VERSION = "1.1-beta-2";
     
     public String getEngineName() {
         return "groovy";
@@ -47,7 +50,7 @@ public class GroovyScriptEngineFactory implements ScriptEngineFactory {
     }
 
     public String getLanguageVersion() {
-        return "1.0";
+        return VERSION;
     }
     
     public List<String> getExtensions() {
@@ -64,17 +67,17 @@ public class GroovyScriptEngineFactory implements ScriptEngineFactory {
     
     public Object getParameter(String key) {
        
-        if (key.equals(ScriptEngine.NAME)) {
+        if (ScriptEngine.NAME.equals(key)) {
             return "Groovy";
-        } else if (key.equals(ScriptEngine.ENGINE)) {
+        } else if (ScriptEngine.ENGINE.equals(key)) {
             return "Groovy Script Engine";
-        } else if (key.equals(ScriptEngine.ENGINE_VERSION)) {
+        } else if (ScriptEngine.ENGINE_VERSION.equals(key)) {
             return org.codehaus.groovy.runtime.InvokerHelper.getVersion();
-        } else if (key.equals(ScriptEngine.LANGUAGE)) {
+        } else if (ScriptEngine.LANGUAGE.equals(key)) {
             return "Groovy";
-        } else if (key.equals(ScriptEngine.LANGUAGE_VERSION)) {
-            return "1.0";
-        } else if (key.equals("THREADING")) {
+        } else if (ScriptEngine.LANGUAGE_VERSION.equals(key)) {
+            return VERSION;
+        } else if ("THREADING".equals(key)) {
             return "MULTITHREADED";
         } else {
             throw new IllegalArgumentException("Invalid key");
