@@ -42,6 +42,7 @@ import org.jruby.javasupport.*;
 import org.jruby.runtime.*;
 import org.jruby.runtime.builtin.*;
 import org.jruby.internal.runtime.GlobalVariable;
+import org.jruby.util.KCode;
 
 public class JRubyScriptEngine extends AbstractScriptEngine 
         implements Compilable, Invocable { 
@@ -193,8 +194,8 @@ public class JRubyScriptEngine extends AbstractScriptEngine
             String filename = (String) ctx.getAttribute(ScriptEngine.FILENAME);
             if (filename == null) {
                 filename = "<unknown>";
-            }
-            return runtime.parse(script, filename, null, 0);
+            }            
+            return runtime.parse(getRubyScript(script), filename, null, 0);
         } catch (Exception exp) {
             throw new ScriptException(exp);
         } finally {
@@ -212,8 +213,11 @@ public class JRubyScriptEngine extends AbstractScriptEngine
             String filename = (String) ctx.getAttribute(ScriptEngine.FILENAME);
             if (filename == null) {
                 filename = "<unknown>";
+                String script = getRubyScript(reader);
+                return runtime.parse(script, filename, null, 0);
             }
-            return runtime.parse(reader, filename, null, 0);
+            Reader rubyReader = getRubyReader(filename);
+            return runtime.parse(rubyReader, filename, null, 0);
         } catch (Exception exp) {
             throw new ScriptException(exp);
         } finally {
@@ -221,6 +225,31 @@ public class JRubyScriptEngine extends AbstractScriptEngine
                 setGlobalVariables(oldGlobals);
             }
         }
+    }
+    
+    private String getRubyScript(String script) {
+        IRubyObject rubyScript = JavaEmbedUtils.javaToRuby(runtime, script);
+        return rubyScript.asSymbol();
+    }
+    
+    private String getRubyScript(Reader reader) throws IOException {
+        StringBuffer sb = new StringBuffer();
+        char[] cbuf;
+        while (true) {
+            cbuf = new char[1023];
+            int chars = reader.read(cbuf);
+            if (chars < 0) {
+                break;
+            }
+            sb.append(cbuf);
+        }
+        cbuf = null;
+        return getRubyScript(new String(sb));
+    }
+    
+    private Reader getRubyReader(String filename) throws FileNotFoundException {
+        File file = new File(filename);
+        return new BufferedReader(new InputStreamReader(new FileInputStream(file), KCode.NONE.decoder()));
     }
 
     private void setGlobalVariables(final ScriptContext ctx) {
@@ -364,6 +393,7 @@ public class JRubyScriptEngine extends AbstractScriptEngine
             if (oldGlobals != null) {
                 setGlobalVariables(oldGlobals);
             }
+            JavaEmbedUtils.terminate(runtime);
         }
     }
 
