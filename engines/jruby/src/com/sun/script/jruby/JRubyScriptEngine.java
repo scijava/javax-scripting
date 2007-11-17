@@ -236,15 +236,15 @@ public class JRubyScriptEngine extends AbstractScriptEngine
         StringBuffer sb = new StringBuffer();
         char[] cbuf;
         while (true) {
-            cbuf = new char[1023];
-            int chars = reader.read(cbuf);
+            cbuf = new char[8*1023];
+            int chars = reader.read(cbuf, 0, cbuf.length);
             if (chars < 0) {
                 break;
             }
-            sb.append(cbuf);
+            sb.append(cbuf, 0, chars);
         }
         cbuf = null;
-        return getRubyScript(new String(sb));
+        return getRubyScript(new String(sb).trim());
     }
     
     private Reader getRubyReader(String filename) throws FileNotFoundException {
@@ -399,6 +399,9 @@ public class JRubyScriptEngine extends AbstractScriptEngine
 
     private void init(String loadPath) {        
         runtime = Ruby.getDefaultInstance();
+        IAccessor d = new ValueAccessor(runtime.newString("<script>"));
+        runtime.getGlobalVariables().define("$PROGRAM_NAME", d);
+        runtime.getGlobalVariables().define("$0", d);
         if (loadPath == null) {
             loadPath = System.getProperty("java.class.path");
         }
