@@ -37,6 +37,7 @@ import java.util.*;
 
 import org.jruby.*;
 import org.jruby.ast.*;
+import org.jruby.exceptions.RaiseException;
 import org.jruby.internal.runtime.*;
 import org.jruby.javasupport.*;
 import org.jruby.runtime.*;
@@ -390,10 +391,19 @@ public class JRubyScriptEngine extends AbstractScriptEngine
         } catch (Exception exp) {
             throw new ScriptException(exp);
         } finally {
-            if (oldGlobals != null) {
-                setGlobalVariables(oldGlobals);
+            try {
+                JavaEmbedUtils.terminate(runtime);
+            } catch (RaiseException e) {
+                RubyException re =  e.getException();
+                runtime.printError(re);
+                if (!re.isKindOf(runtime.getClass("SystemExit"))) {
+                    throw new ScriptException(e);
+                }
+            } finally {
+                if (oldGlobals != null) {
+                    setGlobalVariables(oldGlobals);
+                }
             }
-            JavaEmbedUtils.terminate(runtime);
         }
     }
 
@@ -416,8 +426,9 @@ public class JRubyScriptEngine extends AbstractScriptEngine
         if (method == null) {
             throw new NullPointerException("method name is null");
         }
-
+        GlobalVariables oldGlobals = runtime.getGlobalVariables();
         try {
+            setGlobalVariables(context);
             IRubyObject rubyRecv = obj != null ? 
                   JavaUtil.convertJavaToRuby(runtime, obj) : runtime.getTopSelf();
 
@@ -436,6 +447,10 @@ public class JRubyScriptEngine extends AbstractScriptEngine
             return rubyToJava(result, returnType);
         } catch (Exception exp) {
             throw new ScriptException(exp);
+        } finally {
+            if (oldGlobals != null) {
+                setGlobalVariables(oldGlobals);
+            }
         }
     }
 }
