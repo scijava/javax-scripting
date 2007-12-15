@@ -431,19 +431,22 @@ public class JRubyScriptEngine extends AbstractScriptEngine
             setGlobalVariables(context);
             IRubyObject rubyRecv = obj != null ? 
                   JavaUtil.convertJavaToRuby(runtime, obj) : runtime.getTopSelf();
-
-            IRubyObject[] rubyArgs = JavaUtil.convertJavaArrayToRuby(runtime, args);
-
-            // Create Ruby proxies for any input arguments that are not primitives.
-            IRubyObject javaUtilities = runtime.getObject().getConstant("JavaUtilities");
-            for (int i = 0; i < rubyArgs.length; i++) {
-                IRubyObject tmp = rubyArgs[i];
-                if (tmp instanceof JavaObject) {
-                    rubyArgs[i] = javaUtilities.callMethod(runtime.getCurrentContext(), "wrap", tmp);
+            
+            IRubyObject result;
+            if (args != null && args.length > 0) {
+                IRubyObject[] rubyArgs = JavaUtil.convertJavaArrayToRuby(runtime, args);
+                // Create Ruby proxies for any input arguments that are not primitives.
+                IRubyObject javaUtilities = runtime.getObject().getConstant("JavaUtilities");
+                for (int i = 0; i < rubyArgs.length; i++) {
+                    IRubyObject tmp = rubyArgs[i];
+                    if (tmp instanceof JavaObject) {
+                        rubyArgs[i] = javaUtilities.callMethod(runtime.getCurrentContext(), "wrap", tmp);
+                    }
                 }
-            }
-
-            IRubyObject result = rubyRecv.callMethod(runtime.getCurrentContext(), method, rubyArgs);
+                result = rubyRecv.callMethod(runtime.getCurrentContext(), method, rubyArgs);
+            } else {
+                result = rubyRecv.callMethod(runtime.getCurrentContext(), method);
+            }   
             return rubyToJava(result, returnType);
         } catch (Exception exp) {
             throw new ScriptException(exp);
