@@ -33,8 +33,13 @@ package com.sun.script.jruby;
 import javax.script.*;
 import java.lang.reflect.*;
 import java.io.*;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CoderResult;
+import java.nio.charset.CodingErrorAction;
 import java.util.*;
-
 import org.jruby.*;
 import org.jruby.ast.*;
 import org.jruby.exceptions.RaiseException;
@@ -192,13 +197,18 @@ public class JRubyScriptEngine extends AbstractScriptEngine
         GlobalVariables oldGlobals = runtime.getGlobalVariables();  
         try {
             setGlobalVariables(ctx);
+            setErrorWriter(context.getErrorWriter());
             String filename = (String) ctx.getAttribute(ScriptEngine.FILENAME);
             if (filename == null) {
                 filename = "<unknown>";
             }            
             return runtime.parse(getRubyScript(script), filename, null, 0);
-        } catch (Exception exp) {
-            throw new ScriptException(exp);
+        } catch (RaiseException e) {
+            RubyException re =  e.getException();
+            runtime.printError(re);
+            throw new ScriptException(e);
+        } catch (Exception e) {
+            throw new ScriptException(e);
         } finally {
             if (oldGlobals != null) {
                 setGlobalVariables(oldGlobals);
@@ -211,6 +221,7 @@ public class JRubyScriptEngine extends AbstractScriptEngine
         GlobalVariables oldGlobals = runtime.getGlobalVariables();  
         try {
             setGlobalVariables(ctx);
+            setErrorWriter(context.getErrorWriter());
             String filename = (String) ctx.getAttribute(ScriptEngine.FILENAME);
             if (filename == null) {
                 filename = "<unknown>";
@@ -219,6 +230,10 @@ public class JRubyScriptEngine extends AbstractScriptEngine
             }
             Reader rubyReader = getRubyReader(filename);
             return runtime.parse(rubyReader, filename, null, 0);
+        } catch (RaiseException e) {
+            RubyException re =  e.getException();
+            runtime.printError(re);
+            throw new ScriptException(e);
         } catch (Exception exp) {
             throw new ScriptException(exp);
         } finally {
@@ -237,7 +252,7 @@ public class JRubyScriptEngine extends AbstractScriptEngine
         StringBuffer sb = new StringBuffer();
         char[] cbuf;
         while (true) {
-            cbuf = new char[8*1023];
+            cbuf = new char[8*1024];
             int chars = reader.read(cbuf, 0, cbuf.length);
             if (chars < 0) {
                 break;
@@ -387,6 +402,8 @@ public class JRubyScriptEngine extends AbstractScriptEngine
         GlobalVariables oldGlobals = runtime.getGlobalVariables();
         try {
             setGlobalVariables(ctx);
+            setWriterOutputStream(ctx.getWriter());
+            setErrorWriter(ctx.getErrorWriter());
             return rubyToJava(runtime.eval(node));
         } catch (Exception exp) {
             throw new ScriptException(exp);
@@ -420,7 +437,7 @@ public class JRubyScriptEngine extends AbstractScriptEngine
         runtime.getLoadService().require("java");
     }
 
-    private Object invokeImpl(final Object obj, String method, 
+    private synchronized Object invokeImpl(final Object obj, String method, 
                         Object[] args, Class returnType)
                         throws ScriptException {
         if (method == null) {
@@ -429,6 +446,8 @@ public class JRubyScriptEngine extends AbstractScriptEngine
         GlobalVariables oldGlobals = runtime.getGlobalVariables();
         try {
             setGlobalVariables(context);
+            setWriterOutputStream(context.getWriter());
+            setErrorWriter(context.getErrorWriter());
             IRubyObject rubyRecv = obj != null ? 
                   JavaUtil.convertJavaToRuby(runtime, obj) : runtime.getTopSelf();
             
@@ -451,8 +470,126 @@ public class JRubyScriptEngine extends AbstractScriptEngine
         } catch (Exception exp) {
             throw new ScriptException(exp);
         } finally {
-            if (oldGlobals != null) {
-                setGlobalVariables(oldGlobals);
+            try {
+                JavaEmbedUtils.terminate(runtime);
+            } catch (RaiseException e) {
+                RubyException re =  e.getException();
+                runtime.printError(re);
+                if (!re.isKindOf(runtime.getClass("SystemExit"))) {
+                    throw new ScriptException(e);
+                }
+            } finally {
+                if (oldGlobals != null) {
+                    setGlobalVariables(oldGlobals);
+                }
+            }
+        }
+    }
+    
+    private void setWriterOutputStream(Writer writer) {
+        try {
+            RubyIO io = 
+                new RubyIO(runtime, new PrintStream(new WriterOutputStream(writer)));
+            runtime.getGlobalVariables().set("$>", io);
+        } catch (UnsupportedEncodingException exp) {
+            throw new IllegalArgumentException(exp);
+        }
+    }
+    
+    private void setErrorWriter(Writer writer) {
+        try {
+            RubyIO io = 
+                new RubyIO(runtime, new PrintStream(new WriterOutputStream(writer)));
+            runtime.getGlobalVariables().set("$stderr", io);
+        } catch (UnsupportedEncodingException exp) {
+            throw new IllegalArgumentException(exp);
+        }
+    }
+
+    private String getEncoding() {
+        String enc = System.getProperty("sun.jnu.encoding");
+        if (enc != null) {
+            return enc;
+        }
+        return ((enc = System.getProperty("file.encoding")) == null) ? "UTF-8" : enc;
+    }
+    
+    private class WriterOutputStream extends OutputStream {
+
+        private Writer writer;
+        private CharsetDecoder decoder;
+        
+        private WriterOutputStream(Writer writer) throws UnsupportedEncodingException {
+            this(writer, getEncoding());
+        }
+        
+        private WriterOutputStream(Writer writer, String enc) throws UnsupportedEncodingException {
+            this.writer = writer;
+            if (enc == null) {
+                throw new UnsupportedEncodingException("encoding is " + enc);
+            }
+            try {
+                decoder = Charset.forName(enc).newDecoder();
+            } catch (Exception e) {
+                throw new UnsupportedEncodingException("Unsupported: " + enc);
+            }
+            decoder.onMalformedInput(CodingErrorAction.REPLACE);
+            decoder.onUnmappableCharacter(CodingErrorAction.REPLACE);
+        }
+        
+        @Override
+        public void close() throws IOException {
+            synchronized(writer) {
+                decoder = null;
+                writer.close();
+            }
+        }
+
+        @Override
+        public void flush() throws IOException {
+            synchronized(writer) {
+                writer.flush();
+            }
+        }
+        
+        @Override
+        public void write(int b) throws IOException {
+            byte[] buffer = new byte[1];
+            write(buffer, 0, 1);
+        }
+        
+        @Override
+        public void write(byte[] buffer) throws IOException {
+            write(buffer, 0, buffer.length);
+        }
+
+        @Override
+        public void write(byte[] buffer, int offset, int length) throws IOException {
+            synchronized(writer) {
+                if (offset < 0 || offset > buffer.length - length || length < 0) {
+                    throw new IndexOutOfBoundsException();
+                }
+                if (length == 0) {
+                    return;
+                }
+                ByteBuffer bytes = ByteBuffer.wrap(buffer, offset, length);
+                CharBuffer chars = CharBuffer.allocate(length);
+                convert(bytes, chars);
+                char[] cbuf = new char[chars.length()];
+                chars.get(cbuf, 0, chars.length());
+                writer.write(cbuf);
+                writer.flush();
+            }
+        }
+
+        private void convert(ByteBuffer bytes, CharBuffer chars) throws IOException {
+            decoder.reset();
+            chars.clear();
+            CoderResult result = decoder.decode(bytes, chars, true);
+            if (result.isError() || result.isOverflow()) {
+                throw new IOException(result.toString());
+            } else if (result.isUnderflow()) {
+                chars.flip();
             }
         }
     }
