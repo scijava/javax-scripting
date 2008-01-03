@@ -1,7 +1,7 @@
 This is JSR-223 script engine for Freemarker general purpose template
 engine in Java. More information and download URL for Freemarker is 
 available from http://freemarker.sourceforge.net. We have built and 
-tested this engine with Freemarker version 2.3.8.
+tested this engine with Freemarker version 2.3.11.
 
 Special variables reserved by this engine:
 
