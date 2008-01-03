@@ -35,7 +35,7 @@ import java.util.*;
 
 public class GroovyScriptEngineFactory implements ScriptEngineFactory {
 	
-	private static String VERSION = "1.1-beta-2";
+	private static String VERSION = "1.5.1";
     
     public String getEngineName() {
         return "groovy";

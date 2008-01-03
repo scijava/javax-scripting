@@ -38,7 +38,7 @@ public class FreeMarkerScriptEngineFactory implements ScriptEngineFactory {
     }
 
     public String getEngineVersion() {
-        return "2.3.8";
+        return "2.3.11";
     }
 
     public List<String> getExtensions() {
@@ -50,7 +50,7 @@ public class FreeMarkerScriptEngineFactory implements ScriptEngineFactory {
     }
 
     public String getLanguageVersion() {
-        return "2.3.8";
+        return "2.3.11";
     }
 
     public String getMethodCallSyntax(String obj, String m, String... args) {
