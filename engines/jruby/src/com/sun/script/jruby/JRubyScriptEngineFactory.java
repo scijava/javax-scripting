@@ -34,11 +34,11 @@ import java.util.*;
 
 public class JRubyScriptEngineFactory implements ScriptEngineFactory {
     public String getEngineName() { 
-        return "jruby";
+        return "JRuby Engine";
     }
 
     public String getEngineVersion() {
-        return "1.0";
+        return "1.1.0";
     }
 
     public List<String> getExtensions() {
@@ -50,7 +50,7 @@ public class JRubyScriptEngineFactory implements ScriptEngineFactory {
     }
 
     public String getLanguageVersion() {
-        return "1.8.4";
+        return "1.8.6";
     }
 
     public String getMethodCallSyntax(String obj, String m, String... args) {

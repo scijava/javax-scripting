@@ -30,24 +30,58 @@
 
 package com.sun.script.jruby;
 
-import javax.script.*;
-import java.lang.reflect.*;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.io.Reader;
+import java.io.UnsupportedEncodingException;
+import java.io.Writer;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
-import java.util.*;
-import org.jruby.*;
-import org.jruby.ast.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import javax.script.AbstractScriptEngine;
+import javax.script.Bindings;
+import javax.script.Compilable;
+import javax.script.CompiledScript;
+import javax.script.Invocable;
+import javax.script.ScriptContext;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineFactory;
+import javax.script.ScriptException;
+import javax.script.SimpleBindings;
+import org.jruby.Ruby;
+import org.jruby.RubyException;
+import org.jruby.RubyIO;
+import org.jruby.RubyObject;
+import org.jruby.ast.Node;
 import org.jruby.exceptions.RaiseException;
-import org.jruby.internal.runtime.*;
-import org.jruby.javasupport.*;
-import org.jruby.runtime.*;
-import org.jruby.runtime.builtin.*;
 import org.jruby.internal.runtime.GlobalVariable;
+import org.jruby.internal.runtime.GlobalVariables;
+import org.jruby.internal.runtime.ReadonlyAccessor;
+import org.jruby.internal.runtime.ValueAccessor;
+import org.jruby.javasupport.Java;
+import org.jruby.javasupport.JavaEmbedUtils;
+import org.jruby.javasupport.JavaObject;
+import org.jruby.javasupport.JavaUtil;
+import org.jruby.runtime.Block;
+import org.jruby.runtime.IAccessor;
+import org.jruby.runtime.builtin.IRubyObject;
 import org.jruby.util.KCode;
 
 public class JRubyScriptEngine extends AbstractScriptEngine 
@@ -196,13 +230,13 @@ public class JRubyScriptEngine extends AbstractScriptEngine
                                  throws ScriptException {        
         GlobalVariables oldGlobals = runtime.getGlobalVariables();  
         try {
+            setErrorWriter(ctx.getErrorWriter());
             setGlobalVariables(ctx);
-            setErrorWriter(context.getErrorWriter());
             String filename = (String) ctx.getAttribute(ScriptEngine.FILENAME);
             if (filename == null) {
                 filename = "<unknown>";
             }            
-            return runtime.parse(getRubyScript(script), filename, null, 0);
+            return runtime.parseEval(script, filename, null, 0);
         } catch (RaiseException e) {
             RubyException re =  e.getException();
             runtime.printError(re);
@@ -220,16 +254,16 @@ public class JRubyScriptEngine extends AbstractScriptEngine
                                  throws ScriptException {        
         GlobalVariables oldGlobals = runtime.getGlobalVariables();  
         try {
+            setErrorWriter(ctx.getErrorWriter());
             setGlobalVariables(ctx);
-            setErrorWriter(context.getErrorWriter());
             String filename = (String) ctx.getAttribute(ScriptEngine.FILENAME);
             if (filename == null) {
                 filename = "<unknown>";
                 String script = getRubyScript(reader);
-                return runtime.parse(script, filename, null, 0);
+                return runtime.parseEval(script, filename, null, 0);
             }
-            Reader rubyReader = getRubyReader(filename);
-            return runtime.parse(rubyReader, filename, null, 0);
+            InputStream inputStream = getRubyReader(filename);
+            return runtime.parseFile(inputStream, filename, null);
         } catch (RaiseException e) {
             RubyException re =  e.getException();
             runtime.printError(re);
@@ -242,12 +276,7 @@ public class JRubyScriptEngine extends AbstractScriptEngine
             }
         }
     }
-    
-    private String getRubyScript(String script) {
-        IRubyObject rubyScript = JavaEmbedUtils.javaToRuby(runtime, script);
-        return rubyScript.asSymbol();
-    }
-    
+
     private String getRubyScript(Reader reader) throws IOException {
         StringBuffer sb = new StringBuffer();
         char[] cbuf;
@@ -260,12 +289,12 @@ public class JRubyScriptEngine extends AbstractScriptEngine
             sb.append(cbuf, 0, chars);
         }
         cbuf = null;
-        return getRubyScript(new String(sb).trim());
+        return (new String(sb)).trim();
     }
     
-    private Reader getRubyReader(String filename) throws FileNotFoundException {
+    private InputStream getRubyReader(String filename) throws FileNotFoundException {
         File file = new File(filename);
-        return new BufferedReader(new InputStreamReader(new FileInputStream(file), KCode.NONE.decoder()));
+        return new FileInputStream(file);
     }
 
     private void setGlobalVariables(final ScriptContext ctx) {
@@ -273,6 +302,7 @@ public class JRubyScriptEngine extends AbstractScriptEngine
         setGlobalVariables(new GlobalVariables(runtime) {
                 GlobalVariables parent = runtime.getGlobalVariables();
                 
+            @Override
                 public void define(String name, IAccessor accessor) {
                     assert name != null;
                     assert accessor != null;
@@ -283,7 +313,7 @@ public class JRubyScriptEngine extends AbstractScriptEngine
                     }
                 }
 
-
+            @Override
                 public void defineReadonly(String name, IAccessor accessor) {
                     assert name != null;
                     assert accessor != null;
@@ -295,6 +325,7 @@ public class JRubyScriptEngine extends AbstractScriptEngine
                     }
                 } 
 
+            @Override
                 public boolean isDefined(String name) {
                     assert name != null;
                     assert name.startsWith("$");
@@ -305,6 +336,7 @@ public class JRubyScriptEngine extends AbstractScriptEngine
                     }
                 }
 
+            @Override
                 public void alias(String name, String oldName) {
                     assert name != null;
                     assert oldName != null;
@@ -326,6 +358,7 @@ public class JRubyScriptEngine extends AbstractScriptEngine
                     }
                 }
 
+            @Override
                 public IRubyObject get(String name) {
                     assert name != null;
                     assert name.startsWith("$");
@@ -347,6 +380,7 @@ public class JRubyScriptEngine extends AbstractScriptEngine
                     }                    
                 }
 
+            @Override
                 public IRubyObject set(String name, IRubyObject value) {
                     assert name != null;
                     assert name.startsWith("$");
@@ -368,27 +402,33 @@ public class JRubyScriptEngine extends AbstractScriptEngine
                             ((IAccessor)obj).setValue(value);
                         } else {                        
                             ctx.setAttribute(modifiedName, rubyToJava(value), scope);
+                            if ("KCODE".equals(modifiedName)) {
+                                setKCode((String)rubyToJava(value));
+                            } else if ("stdout".equals(modifiedName)) {
+                                equalOutputs((RubyObject)value);
+                            }
                         }
                         return oldValue;
                     }
                 }
 
-                public Iterator getNames() {                    
-                    List list = new ArrayList();
+            @Override
+                public Set<String> getNames() {                    
+                    HashSet set = new HashSet();
                     synchronized (ctx) {
                         for (int scope : ctx.getScopes()) {
                             Bindings b = ctx.getBindings(scope);
                             if (b != null) {
                                 for (String key: b.keySet()) {
-                                    list.add(key);
+                                    set.add(key);
                                 }
                             }
                         }
                     }
-                    for (Iterator names = parent.getNames(); names.hasNext();) {
-                        list.add(names.next());
+                    for (Iterator<String> names = parent.getNames().iterator(); names.hasNext();) {
+                        set.add(names.next());
                     }
-                    return Collections.unmodifiableList(list).iterator();
+                    return Collections.unmodifiableSet(set);
                 }
             });
     }
@@ -401,10 +441,10 @@ public class JRubyScriptEngine extends AbstractScriptEngine
                             throws ScriptException {
         GlobalVariables oldGlobals = runtime.getGlobalVariables();
         try {
-            setGlobalVariables(ctx);
             setWriterOutputStream(ctx.getWriter());
             setErrorWriter(ctx.getErrorWriter());
-            return rubyToJava(runtime.eval(node));
+            setGlobalVariables(ctx);
+            return rubyToJava(runtime.runNormally(node, false));
         } catch (Exception exp) {
             throw new ScriptException(exp);
         } finally {
@@ -413,7 +453,7 @@ public class JRubyScriptEngine extends AbstractScriptEngine
             } catch (RaiseException e) {
                 RubyException re =  e.getException();
                 runtime.printError(re);
-                if (!re.isKindOf(runtime.getClass("SystemExit"))) {
+                if (!runtime.fastGetClass("SystemExit").isInstance(re)) {
                     throw new ScriptException(e);
                 }
             } finally {
@@ -425,7 +465,7 @@ public class JRubyScriptEngine extends AbstractScriptEngine
     }
 
     private void init(String loadPath) {        
-        runtime = Ruby.getDefaultInstance();
+        runtime = Ruby.newInstance();
         IAccessor d = new ValueAccessor(runtime.newString("<script>"));
         runtime.getGlobalVariables().define("$PROGRAM_NAME", d);
         runtime.getGlobalVariables().define("$0", d);
@@ -475,7 +515,7 @@ public class JRubyScriptEngine extends AbstractScriptEngine
             } catch (RaiseException e) {
                 RubyException re =  e.getException();
                 runtime.printError(re);
-                if (!re.isKindOf(runtime.getClass("SystemExit"))) {
+                if (!runtime.fastGetClass("SystemExit").isInstance(re)) {
                     throw new ScriptException(e);
                 }
             } finally {
@@ -484,6 +524,16 @@ public class JRubyScriptEngine extends AbstractScriptEngine
                 }
             }
         }
+    }
+    
+    private void setKCode(String encoding) {
+        KCode kcode = KCode.create(runtime, encoding);
+        runtime.setKCode(kcode);
+    }
+    
+    private void equalOutputs(RubyObject value) {
+        runtime.getGlobalVariables().set("$>", value);
+        runtime.getGlobalVariables().set("$defout", value);
     }
     
     private void setWriterOutputStream(Writer writer) {
