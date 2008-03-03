@@ -54,11 +54,11 @@ public class LoadPathTest {
          * A big ruby file had better to have this property.
          */
         String testname = jrubyhome + "/test/testString.rb";
-        engine.put("ScriptEngine.FILENAME", testname);
+        engine.put(ScriptEngine.FILENAME, testname);
         engine.eval(new FileReader(testname));
 
         testname = jrubyhome + "/test/testCornerCases.rb";
-        engine.put("ScriptEngine.FILENAME", testname);
+        engine.put(ScriptEngine.FILENAME, testname);
         engine.eval(new FileReader(testname));
     }
 }
