@@ -430,6 +430,11 @@ public class JRubyScriptEngine extends AbstractScriptEngine
                     }
                     return Collections.unmodifiableSet(set);
                 }
+
+            @Override
+                public IRubyObject getDefaultSeparator() {
+                    return parent.getDefaultSeparator();
+                }
             });
     }
 
@@ -540,6 +545,7 @@ public class JRubyScriptEngine extends AbstractScriptEngine
         try {
             RubyIO io = 
                 new RubyIO(runtime, new PrintStream(new WriterOutputStream(writer)));
+            io.getOpenFile().getMainStream().setSync(true);
             runtime.getGlobalVariables().set("$>", io);
         } catch (UnsupportedEncodingException exp) {
             throw new IllegalArgumentException(exp);
@@ -550,6 +556,7 @@ public class JRubyScriptEngine extends AbstractScriptEngine
         try {
             RubyIO io = 
                 new RubyIO(runtime, new PrintStream(new WriterOutputStream(writer)));
+            io.getOpenFile().getMainStream().setSync(true);
             runtime.getGlobalVariables().set("$stderr", io);
         } catch (UnsupportedEncodingException exp) {
             throw new IllegalArgumentException(exp);
