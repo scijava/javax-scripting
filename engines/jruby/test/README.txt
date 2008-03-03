@@ -13,7 +13,7 @@ step2. Build jruby engine.
 
 step3. Install jruby-engine.jar in your local maven repository.
 
-   mvn install:install-file -Dfile=build/jruby-engine.jar -DgroupId=com.sun.script.jruby -DartifactId=jruby-engine -Dversion=1.1.0 -Dpackaging=jar 
+   mvn install:install-file -Dfile=build/jruby-engine.jar -DgroupId=com.sun.script.jruby -DartifactId=jruby-engine -Dversion=1.1.1 -Dpackaging=jar 
 
 step4. Compile examples
 
@@ -28,7 +28,7 @@ step5. Generate ant build files
 step6. Run examples
 
   ant EvalTest
-  ant -Djruby.home=[path to your JRuby 1.1RC1] LoadPathTest
+  ant -Djruby.home=[path to your JRuby 1.1RC2] LoadPathTest
   ant InvokeFunctionTest
   ant InvokeMethodTest
   ant GetInterfaceTest
