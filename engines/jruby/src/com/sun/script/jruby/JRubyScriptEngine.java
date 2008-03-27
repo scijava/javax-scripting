@@ -211,8 +211,9 @@ public class JRubyScriptEngine extends AbstractScriptEngine
 
     private Object rubyToJava(IRubyObject value, Class type) {
         return JavaUtil.convertArgument(
-                 Java.ruby_to_java(value, value, Block.NULL_BLOCK), 
-                 type);
+                runtime,
+                Java.ruby_to_java(value, value, Block.NULL_BLOCK), 
+                type);
     }
 
     private IRubyObject javaToRuby(Object value) {
@@ -301,7 +302,7 @@ public class JRubyScriptEngine extends AbstractScriptEngine
         ctx.setAttribute("context", ctx, ScriptContext.ENGINE_SCOPE);
         setGlobalVariables(new GlobalVariables(runtime) {
                 GlobalVariables parent = runtime.getGlobalVariables();
-                
+
             @Override
                 public void define(String name, IAccessor accessor) {
                     assert name != null;
