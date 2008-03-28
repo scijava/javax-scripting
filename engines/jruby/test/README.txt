@@ -2,33 +2,23 @@ This directory contains examples using jruby engine with scripting API.
 
 When you want to get these examples run, try steps below.
 
-step1. Check out entire set of jruby enigne.
+step1. Install jruby-engine.jar in your local maven repository.
 
-    cvs -d :pserver:username@cvs.dev.java.net:/cvs checkout scripting/engines/jruby
+   mvn install:install-file -Dfile=../lib/jruby-engine.jar -DgroupId=com.sun.script.jruby -DartifactId=jruby-engine -Dversion=1.1.2 -Dpackaging=jar 
 
-step2. Build jruby engine.
+step2. Compile examples
 
-    cd scripting/engines/jruby
-    ant -f make/build.xml
-
-step3. Install jruby-engine.jar in your local maven repository.
-
-   mvn install:install-file -Dfile=build/jruby-engine.jar -DgroupId=com.sun.script.jruby -DartifactId=jruby-engine -Dversion=1.1.1 -Dpackaging=jar 
-
-step4. Compile examples
-
-  cd test
   mvn compile
 
-step5. Generate ant build files
+step3. Generate ant build files
 
   mvn ant:ant
 
 
-step6. Run examples
+step4. Run examples
 
   ant EvalTest
-  ant -Djruby.home=[path to your JRuby 1.1RC2] LoadPathTest
+  ant -Djruby.home=[path to your JRuby 1.1RC3] LoadPathTest
   ant InvokeFunctionTest
   ant InvokeMethodTest
   ant GetInterfaceTest
