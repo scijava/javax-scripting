@@ -22,7 +22,7 @@
 
   <path id="javac.classpath">
     <pathelement path="${jsr223.jar}" />
-    <pathelement path="${lib.dir}/groovy-all-1.5.4.jar" />
+    <pathelement path="${lib.dir}/groovy-all-1.5.6.jar" />
   </path>
 
   <target name="compile" depends="prepare" description="Compiles the sources">
