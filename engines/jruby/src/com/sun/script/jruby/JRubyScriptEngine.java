@@ -38,6 +38,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.Reader;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.lang.reflect.InvocationHandler;
@@ -228,7 +229,7 @@ public class JRubyScriptEngine extends AbstractScriptEngine
     }   
 
     private synchronized Node compileScript(String script, ScriptContext ctx) 
-                                 throws ScriptException {        
+                                 throws ScriptException {
         GlobalVariables oldGlobals = runtime.getGlobalVariables();  
         try {
             setErrorWriter(ctx.getErrorWriter());
@@ -252,7 +253,7 @@ public class JRubyScriptEngine extends AbstractScriptEngine
     }
 
     private synchronized Node compileScript(Reader reader, ScriptContext ctx) 
-                                 throws ScriptException {        
+                                 throws ScriptException {
         GlobalVariables oldGlobals = runtime.getGlobalVariables();  
         try {
             setErrorWriter(ctx.getErrorWriter());
@@ -491,9 +492,9 @@ public class JRubyScriptEngine extends AbstractScriptEngine
         }
         GlobalVariables oldGlobals = runtime.getGlobalVariables();
         try {
-            setGlobalVariables(context);
             setWriterOutputStream(context.getWriter());
             setErrorWriter(context.getErrorWriter());
+            setGlobalVariables(context);           
             IRubyObject rubyRecv = obj != null ? 
                   JavaUtil.convertJavaToRuby(runtime, obj) : runtime.getTopSelf();
             
@@ -544,10 +545,16 @@ public class JRubyScriptEngine extends AbstractScriptEngine
     
     private void setWriterOutputStream(Writer writer) {
         try {
+            RubyIO dummy_io = 
+                new RubyIO(runtime, new PrintStream(new WriterOutputStream(new StringWriter())));
+            runtime.getGlobalVariables().set("$stderr", dummy_io); //discard unwanted warnings
             RubyIO io = 
                 new RubyIO(runtime, new PrintStream(new WriterOutputStream(writer)));
             io.getOpenFile().getMainStream().setSync(true);
+            runtime.defineGlobalConstant("STDOUT", io);
             runtime.getGlobalVariables().set("$>", io);
+            runtime.getGlobalVariables().set("$stdout", io);
+            runtime.getGlobalVariables().set("$defout", io);
         } catch (UnsupportedEncodingException exp) {
             throw new IllegalArgumentException(exp);
         }
@@ -555,10 +562,15 @@ public class JRubyScriptEngine extends AbstractScriptEngine
     
     private void setErrorWriter(Writer writer) {
         try {
+            RubyIO dummy_io = 
+                new RubyIO(runtime, new PrintStream(new WriterOutputStream(new StringWriter())));
+            runtime.getGlobalVariables().set("$stderr", dummy_io); //discard unwanted warnings
             RubyIO io = 
                 new RubyIO(runtime, new PrintStream(new WriterOutputStream(writer)));
             io.getOpenFile().getMainStream().setSync(true);
+            runtime.defineGlobalConstant("STDERR", io);
             runtime.getGlobalVariables().set("$stderr", io);
+            runtime.getGlobalVariables().set("$deferr", io);
         } catch (UnsupportedEncodingException exp) {
             throw new IllegalArgumentException(exp);
         }
