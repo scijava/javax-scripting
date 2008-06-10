@@ -36,7 +36,6 @@ download from: http://jcp.org/aboutJava/communityprocess/final/jsr223/index.html
     <ant dir="ognl/make" target="clean"/>
     <ant dir="pnuts/make" target="clean"/>
     <ant dir="scheme/make" target="clean"/>
-    <ant dir="sleep/make" target="clean"/>
     <ant dir="velocity/make" target="clean"/>
     <ant dir="xpath/make" target="clean"/>
     <ant dir="xslt/make" target="clean"/>
@@ -66,7 +65,6 @@ download from: http://jcp.org/aboutJava/communityprocess/final/jsr223/index.html
     <ant dir="ognl/make"/>
     <ant dir="pnuts/make"/>
     <ant dir="scheme/make"/>
-    <ant dir="sleep/make"/>
     <ant dir="velocity/make"/>
     <ant dir="xpath/make"/>
     <ant dir="xslt/make"/>
@@ -334,19 +332,6 @@ download from: http://jcp.org/aboutJava/communityprocess/final/jsr223/index.html
     </copy>
     <copy file="scheme/README.TXT" todir="${scheme.dir}"/>
     <copy file="scheme/LICENSE.TXT" todir="${scheme.dir}"/>
-
-    <property name="sleep.dir" value="${dist.dir}/sleep"/>
-    <mkdir dir="${sleep.dir}/build"/>
-    <mkdir dir="${sleep.dir}/lib"/>
-    <mkdir dir="${sleep.dir}/bin"/>
-    <copy todir="${sleep.dir}/build">
-      <fileset file="sleep/build/*.jar"/>
-    </copy>
-    <copy todir="${sleep.dir}/bin">
-      <fileset file="sleep/bin/*"/>
-    </copy>
-    <copy file="sleep/README.TXT" todir="${sleep.dir}"/>
-    <copy file="sleep/LICENSE.TXT" todir="${sleep.dir}"/>
 
     <property name="velocity.dir" value="${dist.dir}/velocity"/>
     <mkdir dir="${velocity.dir}/build"/>
