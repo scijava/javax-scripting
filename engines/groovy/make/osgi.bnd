@@ -2,5 +2,5 @@ Bundle-Name: Groovy JSR223 Engine
 Bundle-SymbolicName: com.sun.script.groovy
 Export-Package: com.sun.script.groovy.*
 #Import-Package: *;resolution:=optional
-#Include-Resource: ../src/main/resources
+Include-Resource: ../resources
 
