@@ -1,0 +1,6 @@
+Bundle-Name: JRuby JSR223 Engine
+Bundle-SymbolicName: com.sun.script.jruby
+Export-Package: com.sun.script.jruby.*
+#Import-Package: *;resolution:=optional
+Include-Resource: ../resources
+Bundle-Version: 1.0

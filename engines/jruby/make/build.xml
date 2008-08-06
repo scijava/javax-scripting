@@ -37,8 +37,16 @@
   </target>
 
   <target name="deploy" depends="compile" description="Creates a deployment bundle">
-    <jar jarfile="${dist.jar}"
-         basedir="${classes.dir}"/>
+    <!-- OSGi-compliant jarring -->
+    <taskdef resource="aQute/bnd/ant/taskdef.properties"
+             classpath="../../bnd-0.0.249.jar"/>
+    <bnd classpath="${classes.dir}" 
+         failok="false"    
+         exceptions="true"
+         files="osgi.bnd"
+         output="${dist.jar}" />
+<!--    <jar jarfile="${dist.jar}"
+         basedir="${classes.dir}"/>-->
   </target>
 
   <target name="all" depends="deploy" description="Builds sources and deployment jar"/>
