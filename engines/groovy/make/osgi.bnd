@@ -3,4 +3,4 @@ Bundle-SymbolicName: com.sun.script.groovy
 Export-Package: com.sun.script.groovy.*
 #Import-Package: *;resolution:=optional
 Include-Resource: ../resources
-
+Bundle-Version: 1.0
