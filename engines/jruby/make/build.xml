@@ -31,9 +31,11 @@
            debug="on" deprecation="on">
       <classpath refid="javac.classpath" />
     </javac>
+    <!--
     <copy todir="${classes.dir}/META-INF/services">
       <fileset dir="${src.dir}/META-INF/services"/>
     </copy>
+    -->
   </target>
 
   <target name="deploy" depends="compile" description="Creates a deployment bundle">
