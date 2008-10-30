@@ -36,6 +36,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.io.Reader;
 import java.io.StringWriter;
@@ -576,11 +577,17 @@ public class JRubyScriptEngine extends AbstractScriptEngine
         }
     }
 
-    private String getEncoding() {
+    private String getEncoding(Writer writer) {
+        /* commented out to fix [issue 39]
         String enc = System.getProperty("sun.jnu.encoding");
         if (enc != null) {
             return enc;
         }
+        */
+        if (writer instanceof OutputStreamWriter) {
+            return ((OutputStreamWriter)writer).getEncoding();
+        }
+        String enc;
         return ((enc = System.getProperty("file.encoding")) == null) ? "UTF-8" : enc;
     }
     
@@ -590,7 +597,7 @@ public class JRubyScriptEngine extends AbstractScriptEngine
         private CharsetDecoder decoder;
         
         private WriterOutputStream(Writer writer) throws UnsupportedEncodingException {
-            this(writer, getEncoding());
+            this(writer, getEncoding(writer));
         }
         
         private WriterOutputStream(Writer writer, String enc) throws UnsupportedEncodingException {
