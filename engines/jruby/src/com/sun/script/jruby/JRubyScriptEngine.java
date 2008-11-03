@@ -92,9 +92,10 @@ public class JRubyScriptEngine extends AbstractScriptEngine
     // my factory, may be null
     private ScriptEngineFactory factory;
     private Ruby runtime;
+    private boolean autoTerminate = true;
    
     public JRubyScriptEngine() {
-        init(System.getProperty("com.sun.script.jruby.loadpath"));
+        this(System.getProperty("com.sun.script.jruby.loadpath"));
     }
 
     public JRubyScriptEngine(String loadPath) {
@@ -239,7 +240,7 @@ public class JRubyScriptEngine extends AbstractScriptEngine
             if (filename == null) {
                 filename = "<unknown>";
             }            
-            return runtime.parseEval(script, filename, null, 0);
+            return runtime.parseEval(script, filename, runtime.getCurrentContext().getCurrentScope(), 0);
         } catch (RaiseException e) {
             RubyException re =  e.getException();
             runtime.printError(re);
@@ -263,10 +264,10 @@ public class JRubyScriptEngine extends AbstractScriptEngine
             if (filename == null) {
                 filename = "<unknown>";
                 String script = getRubyScript(reader);
-                return runtime.parseEval(script, filename, null, 0);
+                return runtime.parseEval(script, filename, runtime.getCurrentContext().getCurrentScope(), 0);
             }
             InputStream inputStream = getRubyReader(filename);
-            return runtime.parseFile(inputStream, filename, null);
+            return runtime.parseFile(inputStream, filename, runtime.getCurrentContext().getCurrentScope());
         } catch (RaiseException e) {
             RubyException re =  e.getException();
             runtime.printError(re);
@@ -445,16 +446,22 @@ public class JRubyScriptEngine extends AbstractScriptEngine
         runtime.setGlobalVariables(globals);
     }
 
-    private synchronized Object evalNode(Node node, ScriptContext ctx) 
-                            throws ScriptException {
-        GlobalVariables oldGlobals = runtime.getGlobalVariables();
+    private void checkAutoTermination() {
+        String p = System.getProperty("com.sun.script.jruby.terminator");
+        if (p != null) {
+            if ("on".equals(p)) {
+                autoTerminate = true;
+            } else if ("off".equals(p)) {
+                autoTerminate = false;
+            } else {
+                throw new IllegalArgumentException("com.sun.script.jruby.terminator property should be on or off.");
+            }
+        }
+    }
+
+    private Object evalNodeWithAutoTermination(Node node) throws Exception {
         try {
-            setWriterOutputStream(ctx.getWriter());
-            setErrorWriter(ctx.getErrorWriter());
-            setGlobalVariables(ctx);
             return rubyToJava(runtime.runNormally(node, false));
-        } catch (Exception exp) {
-            throw new ScriptException(exp);
         } finally {
             try {
                 JavaEmbedUtils.terminate(runtime);
@@ -464,10 +471,34 @@ public class JRubyScriptEngine extends AbstractScriptEngine
                 if (!runtime.fastGetClass("SystemExit").isInstance(re)) {
                     throw new ScriptException(e);
                 }
-            } finally {
-                if (oldGlobals != null) {
+            }
+        }
+    }
+
+    private Object evalNodeWithoutAutoTermination(Node node) {
+        IRubyObject result =
+                node.interpret(runtime, runtime.getCurrentContext(),
+                runtime.getCurrentContext().getFrameSelf(), Block.NULL_BLOCK);
+        return JavaEmbedUtils.rubyToJava(runtime, result, Object.class);
+    }
+
+    private synchronized Object evalNode(Node node, ScriptContext ctx) throws ScriptException {
+        GlobalVariables oldGlobals = runtime.getGlobalVariables();
+        try {
+            setWriterOutputStream(ctx.getWriter());
+            setErrorWriter(ctx.getErrorWriter());
+            setGlobalVariables(ctx);
+            checkAutoTermination();
+            if (autoTerminate) {
+                return evalNodeWithAutoTermination(node);
+            } else {
+                return evalNodeWithoutAutoTermination(node);
+            }
+        } catch (Exception exp) {
+            throw new ScriptException(exp);
+        } finally {
+            if (oldGlobals != null) {
                     setGlobalVariables(oldGlobals);
-                }
             }
         }
     }
