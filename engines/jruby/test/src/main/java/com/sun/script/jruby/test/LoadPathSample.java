@@ -24,53 +24,54 @@
 
 package com.sun.script.jruby.test;
 
+import com.sun.script.jruby.JRubyScriptEngineManager;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import javax.script.Invocable;
 import javax.script.ScriptEngine;
-import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
 /**
- * InvoleFunctionTest.java
+ * LoadPathSample.java
  * @author Yoko Harada
  */
-public class InvokeFunctionTest {
+public class LoadPathSample {
 
-    public static void main(String[] args) throws ScriptException, NoSuchMethodException, FileNotFoundException {
-        String basedir = System.getProperty("base.dir");
+    public static void main(String[] args) throws FileNotFoundException, ScriptException {
+        String jrubyhome = System.getProperty("jruby.home");
+        String separator = System.getProperty("path.separator");
+        String classpath = System.getProperty("java.class.path");
+        classpath = classpath + separator +
+                jrubyhome + separator +
+                jrubyhome + "/lib/ruby/1.8";
+        System.setProperty("java.class.path", classpath);
         ScriptEngineManager manager = new ScriptEngineManager();
-        ScriptEngine engine = null;
-        for (ScriptEngineFactory factory : manager.getEngineFactories()) {
-            if ("ruby".equals(factory.getLanguageName())) {
-                engine = factory.getScriptEngine();
-                break;
-            }
-        }
+        //JRubyScriptEngineManager manager = new JRubyScriptEngineManager();
+        ScriptEngine engine = manager.getEngineByExtension("rb");
+        
+        /*
+         * When ScriptEngine.FILENAME property is set,
+         * org.jruby.Ruby#parseFile method compiles the specified file.
+         * If not, org.jruby.Ruby#parseEval does after reading a file.
+         * A big ruby file had better to have this property.
+         */
+        String testname = jrubyhome + "/test/testString.rb";
+        engine.put(ScriptEngine.FILENAME, testname);
+        engine.eval(new FileReader(testname));
 
-        engine.eval("def hello(to) print 'Hello, ', to, '\n' end");
-        Invocable invocable = (Invocable) engine;
-        
-        //Methods compiled("parsed" in ruby) previously can be invoked more than once.
-        invocable.invokeFunction("hello", new Object[]{"Santa Claus"});
-        invocable.invokeFunction("hello", new Object[]{"St. Valentine"});
-        invocable.invokeFunction("hello", new Object[]{"St. Patrick"});
-        
-        //If a method to be invoked doesn't have any argument,
-        //give an empty array of Object.
-        engine.eval("def say() puts \"Don\'t drink too much!\" end");
-        invocable.invokeFunction("say", new Object[]{});
-        
-        //give global variables to a method by context
-        Object[] list = {"Scarecrow", "Pumpkin", "Witch"};
-        engine.put("list", list);
-        engine.eval(new FileReader(basedir+"/src/main/ruby/say2all.rb"));
-        invocable.invokeFunction("say_to_all", new Object[]{});
-        
-        //give a global variable and an arugment to be used in the method
-        engine.put("message", new String("trick or treat"));
-        engine.eval(new FileReader(basedir+"/src/main/ruby/manytimes.rb"));
-        invocable.invokeFunction("many_times", new Object[]{4});
+        testname = jrubyhome + "/test/testCornerCases.rb";
+        engine.put(ScriptEngine.FILENAME, testname);
+        engine.eval(new FileReader(testname));
+
+        String script = "require 'pstore'\n" +
+                    "db = PStore.new('/tmp/foo')\n" +
+                    "db.transaction do\n" +
+                    "  array = db['foo'] = ['a', 'b', 'c', 'd'];" +
+                    "  array[1] = ['ab', 'bc'];" +
+                    "end\n" +
+                    "db.transaction(true) do\n" +
+                    "  p db['foo'];" +
+                    "end";
+        engine.eval(script);
     }
 }

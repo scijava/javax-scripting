@@ -24,6 +24,7 @@
 
 package com.sun.script.jruby.test;
 
+import com.sun.script.jruby.JRubyScriptEngineManager;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import javax.script.Invocable;
@@ -32,36 +33,26 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
 /**
- * GetInterfaceTest.java
+ * InvokeMethodSample.java
  * @author Yoko Harada
  */
-public class GetInterfaceTest {
-
-    public static void main(String[] args) throws FileNotFoundException, ScriptException {
-        String basedir = System.getProperty("base.dir");
+public class InvokeMethodSample {
+    public static void main(String[] args) throws FileNotFoundException, ScriptException, NoSuchMethodException {
+        String basedir = System.getProperty("basedir");
         ScriptEngineManager manager = new ScriptEngineManager();
-        ScriptEngine engine = manager.getEngineByExtension("rb");
-        Invocable invocable = (Invocable) engine;
-
-        //invoke ruby's top-level methods implementing Java interface
-        engine.eval(new FileReader(basedir+"/src/main/ruby/temperature.rb"));
-        TempConversion convertor = invocable.getInterface(TempConversion.class);
-        double f = 32.0;
-        double c = 0.0;
-        System.out.println(f + " Fahrenheit = " +
-                convertor.get_c_from_f(f) + " Celsius");
-        System.out.println(c + " Celsius = " +
-                convertor.get_f_from_c(c) + " Fahrenheit");
+        //JRubyScriptEngineManager manager = new JRubyScriptEngineManager();
+        ScriptEngine engine = manager.getEngineByName("jruby");
         
-        //invoke ruby's instance methods implementing Java interface
-        Object obj = engine.eval(new FileReader(basedir+"/src/main/ruby/distance.rb"));
-        DistConversion convertor2 =
-                invocable.getInterface(obj, DistConversion.class);
-        double k = 45.0;
-        double m = 45.0;
-        System.out.println(k + " km = " +
-                convertor2.get_mi_from_km(k) + " mi");
-        System.out.println(m + " mi = " +
-                convertor2.get_km_from_mi(m) + " km");
+        engine.eval(new FileReader(basedir+"/src/main/ruby/flowers.rb"));
+        //get two instances as a global variable
+        Object red = engine.get("red");
+        Object white = engine.get("white");
+        
+        //invoke methods defined in the Flower class
+        Invocable invocable = (Invocable) engine;
+        invocable.invokeMethod(red, "comment", new Object[]{});
+        invocable.invokeMethod(white, "comment", new Object[]{});
+        invocable.invokeMethod(red, "others", new Object[]{1});
+        invocable.invokeMethod(white, "others", new Object[]{2});
     }
 }

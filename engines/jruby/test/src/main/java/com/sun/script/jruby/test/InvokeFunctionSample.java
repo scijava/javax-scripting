@@ -24,33 +24,55 @@
 
 package com.sun.script.jruby.test;
 
+import com.sun.script.jruby.JRubyScriptEngineManager;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
+import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
 /**
- * InvokeMethodTest.java
+ * InvoleFunctionSample.java
  * @author Yoko Harada
  */
-public class InvokeMethodTest {
-    public static void main(String[] args) throws FileNotFoundException, ScriptException, NoSuchMethodException {
-        String basedir = System.getProperty("base.dir");
+public class InvokeFunctionSample {
+
+    public static void main(String[] args) throws ScriptException, NoSuchMethodException, FileNotFoundException {
+        String basedir = System.getProperty("basedir");
         ScriptEngineManager manager = new ScriptEngineManager();
-        ScriptEngine engine = manager.getEngineByName("jruby");
-        
-        engine.eval(new FileReader(basedir+"/src/main/ruby/flowers.rb"));
-        //get two instances as a global variable
-        Object red = engine.get("red");
-        Object white = engine.get("white");
-        
-        //invoke methods defined in the Flower class
+        //JRubyScriptEngineManager manager = new JRubyScriptEngineManager();
+        ScriptEngine engine = null;
+        for (ScriptEngineFactory factory : manager.getEngineFactories()) {
+            if ("ruby".equals(factory.getLanguageName())) {
+                engine = factory.getScriptEngine();
+                break;
+            }
+        }
+
+        engine.eval("def hello(to) print 'Hello, ', to, '\n' end");
         Invocable invocable = (Invocable) engine;
-        invocable.invokeMethod(red, "comment", new Object[]{});
-        invocable.invokeMethod(white, "comment", new Object[]{});
-        invocable.invokeMethod(red, "others", new Object[]{1});
-        invocable.invokeMethod(white, "others", new Object[]{2});
+        
+        //Methods compiled("parsed" in ruby) previously can be invoked more than once.
+        invocable.invokeFunction("hello", new Object[]{"Santa Claus"});
+        invocable.invokeFunction("hello", new Object[]{"St. Valentine"});
+        invocable.invokeFunction("hello", new Object[]{"St. Patrick"});
+        
+        //If a method to be invoked doesn't have any argument,
+        //give an empty array of Object.
+        engine.eval("def say() puts \"Don\'t drink too much!\" end");
+        invocable.invokeFunction("say", new Object[]{});
+        
+        //give global variables to a method by context
+        Object[] list = {"Scarecrow", "Pumpkin", "Witch"};
+        engine.put("list", list);
+        engine.eval(new FileReader(basedir+"/src/main/ruby/say2all.rb"));
+        invocable.invokeFunction("say_to_all", new Object[]{});
+        
+        //give a global variable and an arugment to be used in the method
+        engine.put("message", new String("trick or treat"));
+        engine.eval(new FileReader(basedir+"/src/main/ruby/manytimes.rb"));
+        invocable.invokeFunction("many_times", new Object[]{4});
     }
 }

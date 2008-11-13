@@ -21,11 +21,12 @@
  * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-
 package com.sun.script.jruby.test;
 
+import com.sun.script.jruby.JRubyScriptEngineManager;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.script.Bindings;
@@ -36,60 +37,67 @@ import javax.script.ScriptException;
 import javax.script.SimpleScriptContext;
 
 /**
- * EvalTest.java
+ * EvalSample.java
  * @author Yoko Harada
  */
-public class EvalTest {
+public class EvalSample {
 
-    public static void main(String[] args) throws FileNotFoundException, ScriptException {
-        String basedir = System.getProperty("base.dir");
+    EvalSample() throws UnsupportedEncodingException, ScriptException, FileNotFoundException {
+        String basedir = System.getProperty("basedir");
         ScriptEngineManager manager = new ScriptEngineManager();
+        //JRubyScriptEngineManager manager = new JRubyScriptEngineManager();
         ScriptEngine engine = manager.getEngineByName("jruby");
-        
+
+        List<String> people = new ArrayList<String>();
+
         //give global varibales to runime by context in the super class
         engine.put("who", new String("Ichiro"));
-        List<String> people = new ArrayList<String>();
         people.add("Julia");
         people.add("Johnny");
         engine.put("people", people);
-        engine.eval(new FileReader(basedir+"/src/main/ruby/greetings.rb"));
-        
+        engine.eval(new FileReader(basedir + "/src/main/ruby/greetings.rb"));
+
         //give global variables to runtime by Bindings
         Bindings bindings = engine.createBindings();
         bindings.put("who", new String("Harry"));
         people.add("Keira");
         people.add("Keith");
         bindings.put("people", people);
-        engine.eval(new FileReader(basedir+"/src/main/ruby/greetings.rb"), bindings);
-        
+        engine.eval(new FileReader(basedir + "/src/main/ruby/greetings.rb"), bindings);
+
         //give global varibales to runtime by context created
         SimpleScriptContext context = new SimpleScriptContext();
         context.setAttribute("who", new String("George"), ScriptContext.ENGINE_SCOPE);
         people.add("Luke");
         people.add("Lindsay");
         context.setAttribute("people", people, ScriptContext.ENGINE_SCOPE);
-        engine.eval(new FileReader(basedir+"/src/main/ruby/greetings.rb"), context);
-        
-        String script = "puts \"Good evening, #{$who}.\";"+
-            "print \"Hello\", $people;" +
-            "print \"#{$people.size + 1} in total.\"";
-        
+        engine.eval(new FileReader(basedir + "/src/main/ruby/greetings.rb"), context);
+
+        String script = "puts \"Good evening, #{$who}.\";" +
+                "print \"Hello\", $people;" +
+                "print \"#{$people.size + 1} in total.\"";
+
         //give global varibales to runime by context in the super class
         engine.put("who", new String("Fred"));
         people.add("Matt");
         people.add("Mariah");
         engine.eval(new String(script));
-        
+
         //give global variables to runtime by Bindings
         bindings.put("who", new String("Elliott"));
         people.add("Nicole");
         people.add("Nicolas");
         engine.eval(new String(script), bindings);
-        
+
         //give global varibales to runtime by context created
         context.setAttribute("who", new String("Drew"), ScriptContext.ENGINE_SCOPE);
         people.add("Olivia");
         people.add("Orlando");
         engine.eval(new String(script), context);
+    }
+
+    public static void main(String[] args)
+        throws FileNotFoundException, ScriptException, UnsupportedEncodingException {
+        new EvalSample();
     }
 }

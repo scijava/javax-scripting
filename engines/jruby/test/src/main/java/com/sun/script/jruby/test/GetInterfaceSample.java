@@ -24,41 +24,49 @@
 
 package com.sun.script.jruby.test;
 
+import com.sun.script.jruby.JRubyScriptEngineManager;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
 /**
- * LoadPathTest.java
+ * GetInterfaceSample.java
  * @author Yoko Harada
  */
-public class LoadPathTest {
+public class GetInterfaceSample {
+    GetInterfaceSample() throws ScriptException, FileNotFoundException {
+        String basedir = System.getProperty("basedir");
+        ScriptEngineManager manager = new ScriptEngineManager();
+        //JRubyScriptEngineManager manager = new JRubyScriptEngineManager();
+        ScriptEngine engine = manager.getEngineByExtension("rb");
+        Invocable invocable = (Invocable) engine;
+
+        //invoke ruby's top-level methods implementing Java interface
+        engine.eval(new FileReader(basedir+"/src/main/ruby/temperature.rb"));
+        TempConversion convertor = invocable.getInterface(TempConversion.class);
+        double f = 32.0;
+        double c = 0.0;
+        System.out.println(f + " Fahrenheit = " +
+                convertor.get_c_from_f(f) + " Celsius");
+        System.out.println(c + " Celsius = " +
+                convertor.get_f_from_c(c) + " Fahrenheit");
+
+        //invoke ruby's instance methods implementing Java interface
+        Object obj = engine.eval(new FileReader(basedir+"/src/main/ruby/distance.rb"));
+        DistConversion convertor2 =
+                invocable.getInterface(obj, DistConversion.class);
+        double k = 45.0;
+        double m = 45.0;
+        System.out.println(k + " km = " +
+                convertor2.get_mi_from_km(k) + " mi");
+        System.out.println(m + " mi = " +
+                convertor2.get_km_from_mi(m) + " km");
+    }
 
     public static void main(String[] args) throws FileNotFoundException, ScriptException {
-        String jrubyhome = System.getProperty("jruby.home");
-        String separator = System.getProperty("path.separator");
-        String classpath = System.getProperty("java.class.path");
-        classpath = classpath + separator +
-                jrubyhome + separator +
-                jrubyhome + "/lib/ruby/1.8";
-        System.setProperty("java.class.path", classpath);
-        ScriptEngineManager manager = new ScriptEngineManager();
-        ScriptEngine engine = manager.getEngineByExtension("rb");
-        
-        /*
-         * When ScriptEngine.FILENAME property is set,
-         * org.jruby.Ruby#parseFile method compiles the specified file.
-         * If not, org.jruby.Ruby#parseEval does after reading a file.
-         * A big ruby file had better to have this property.
-         */
-        String testname = jrubyhome + "/test/testString.rb";
-        engine.put(ScriptEngine.FILENAME, testname);
-        engine.eval(new FileReader(testname));
-
-        testname = jrubyhome + "/test/testCornerCases.rb";
-        engine.put(ScriptEngine.FILENAME, testname);
-        engine.eval(new FileReader(testname));
+        new GetInterfaceSample();
     }
 }

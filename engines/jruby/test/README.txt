@@ -1,24 +1,27 @@
-This directory contains examples using jruby engine with scripting API.
+This directory contains samples how to use JSR 223 API with JRuby engine.
+These samples get run by mvn command since this directory is a maven project. However, you need to do steps below before you try samples.
 
-When you want to get these examples run, try steps below.
+Step1. Install JSR 223 API in your local maven repository.
 
-step1. Install jruby-engine.jar in your local maven repository.
+  This project is built and tested by JDK 5, which doesn't have JSR 223 API. Thus you need to install jar archive of the API in your local maven repository. Even though you use JDK 6, this step is necessary because the archive of jruby-engine in java.net repository depends on it.
 
-   mvn install:install-file -Dfile=../lib/jruby-engine.jar -DgroupId=com.sun.script.jruby -DartifactId=jruby-engine -Dversion=1.1.2 -Dpackaging=jar 
+  Download sjp-1_0-fr-ri.zip, from http://www.jcp.org/en/jsr/detail?id=223, and unzip it. Then try following command to add script-api.jar to the local repo.
 
-step2. Compile examples
-
-  mvn compile
-
-step3. Generate ant build files
-
-  mvn ant:ant
+   mvn install:install-file -DgroupId=javax.script -DartifactId=script-api -Dversion=1.0 -Dpackaging=jar -Dfile=/home/yoko/tools/jsr223-api/script-api.jar
 
 
-step4. Run examples
+Step2. Edit jruby.home System property in pom.xml
 
-  ant EvalTest
-  ant -Djruby.home=[path to your JRuby 1.1RC3] LoadPathTest
-  ant InvokeFunctionTest
-  ant InvokeMethodTest
-  ant GetInterfaceTest
+  LoadPathSample uses jruby.home System property. This property's value must be actual path to your jruby's top directory. Currently, "/home/yoko/tools/jruby-1.1.5" is set in the value tag. You need JRuby's source distribution to get LoadPathSample run.
+
+
+Step3. Build and test all
+
+  mvn clean install
+
+  or
+
+  mvn test
+
+
+All samples are executed by only one command. If you open this direcory by using maven compilent IDE, you can test each sample one by one or do anything that your IDE supports. 
